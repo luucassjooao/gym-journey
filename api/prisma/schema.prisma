@@ -13,6 +13,8 @@ model User {
   email    String @unique
   password String
 
+  Session Session[]
+
   @@map("user")
 }
 
@@ -23,6 +25,7 @@ model MuscleGroup {
   // photo, video, gif
 
   exercises Exercise[]
+  Session   Session[]
 
   @@map("mucles_groups")
 }
@@ -37,4 +40,28 @@ model Exercise {
   muscleGroup MuscleGroup @relation(fields: [musclesGroupsId], references: [id])
 
   @@map("exercises")
+}
+
+enum TypeSession {
+  DELOAD
+  STRENGTH
+  HYPERTROPHY
+
+  @@map("type_session")
+}
+
+model Session {
+  id                String      @id @default(uuid()) @db.Uuid
+  userId            String      @map("user_id") @db.Uuid
+  date              DateTime
+  typeSession       TypeSession
+  duration          Json
+  // { start, end }
+  seriesinformation Json[]      @map("series_information")
+  // [name]: [{ exerciseId, series: { numberOfSeries, reps, weight, rateSerie, partials } }]
+
+  user            User          @relation(fields: [userId], references: [id])
+  targetedMuscles MuscleGroup[]
+
+  @@map("sessions")
 }
