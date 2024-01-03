@@ -15,3 +15,26 @@ model User {
 
   @@map("user")
 }
+
+model MuscleGroup {
+  id    String  @id @default(uuid()) @db.Uuid
+  name  String
+  media String?
+  // photo, video, gif
+
+  exercises Exercise[]
+
+  @@map("mucles_groups")
+}
+
+model Exercise {
+  id              String  @id @default(uuid()) @db.Uuid
+  musclesGroupsId String  @map("muscles_groups_id") @db.Uuid
+  name            String
+  media           String?
+  // photo, video, gif
+
+  muscleGroup MuscleGroup @relation(fields: [musclesGroupsId], references: [id])
+
+  @@map("exercises")
+}
