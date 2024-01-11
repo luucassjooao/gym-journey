@@ -3,13 +3,14 @@ import {Button} from 'react-native';
 import * as S from './styles';
 import AuthService from '../../service/AuthService';
 
-export function Login() {
+export function Signup() {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   async function handleSubmit() {
     try {
-      const response = await AuthService.login(email, password);
+      const response = await AuthService.signup(name, email, password);
 
       console.log(response);
     } catch (error) {
@@ -23,11 +24,16 @@ export function Login() {
         <S.ContaineTextInput>
           <S.MainText>Login</S.MainText>
           <S.TextInput
+            value={name}
+            onChange={e => setName(e.nativeEvent.text)}
+          />
+          <S.TextInput
             value={email}
             onChange={e => setEmail(e.nativeEvent.text)}
           />
           <S.TextInput
             value={password}
+            secureTextEntry
             onChange={e => setPassword(e.nativeEvent.text)}
           />
           <Button title="submit" onPress={handleSubmit} />

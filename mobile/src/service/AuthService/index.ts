@@ -7,8 +7,12 @@ class AuthService {
     this.httpClient = new HttpClient();
   }
 
-  async login(email: string, password: string) {
+  async signin(email: string, password: string) {
     return this.httpClient.post('/auth/signin', {email, password});
+  }
+
+  async signup(name: string, email: string, password: string) {
+    return this.httpClient.post('/auth/signup', {name, email, password});
   }
 }
 
