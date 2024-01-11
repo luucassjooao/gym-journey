@@ -1,0 +1,56 @@
+https://coolors.co/080708-3772ff-df2935-fdca40-e6e8e6
+--black: #080708ff;
+--blue-crayola: #3772ffff;
+--poppy: #df2935ff;
+--sunglow: #fdca40ff;
+--platinum: #e6e8e6ff;
+
+https://coolors.co/e8c547-30323d-4d5061-5c80bc-cdd1c4
+--saffron: #e8c547ff;
+--jet: #30323dff;
+--davys-gray: #4d5061ff;
+--glaucous: #5c80bcff;
+--ash-gray: #cdd1c4ff;
+
+https://coolors.co/d7263d-02182b-0197f6-448fa3-68c5db
+--crimson: #d7263dff;
+--oxford-blue: #02182bff;
+--dodger-blue: #0197f6ff;
+--blue-munsell: #448fa3ff;
+--sky-blue: #68c5dbff;
+
+https://coolors.co/540d6e-ee4266-ffd23f-3bceac-0ead69
+--indigo: #540d6eff;
+--red-crayola: #ee4266ff;
+--sunglow: #ffd23fff;
+--turquoise: #3bceacff;
+--jade: #0ead69ff;
+
+https://coolors.co/464d77-36827f-f9db6d-f4eded-877666
+--yinmn-blue: #464d77ff;
+--teal: #36827fff;
+--naples-yellow: #f9db6dff;
+--snow: #f4ededff;
+--beaver: #877666ff;
+
+https://coolors.co/palette/251b18-a27c86-012e50-440d2c-d493dc
+--licorice: #251b18ff;
+--mountbatten-pink: #a27c86ff;
+--prussian-blue: #012e50ff;
+--tyrian-purple: #440d2cff;
+--plum-web: #d493dcff;
+
+// #210023
+// #C70D2B
+// #CAA823
+// #012E50
+// #C2014A
+// #0D0A1E
+// #1A1919
+// #BE8055
+// #0A0926
+// #E1E7FE
+// #2044B2
+// #151515
+// #FF0217
+// #FD6A30

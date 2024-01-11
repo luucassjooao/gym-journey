@@ -1,7 +1,7 @@
-import {Text} from 'react-native';
+import {Login} from './src/routes/login';
 
 function App(): JSX.Element {
-  return <Text>Gym Journey</Text>;
+  return <Login />;
 }
 
 export default App;
