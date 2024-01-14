@@ -1,3 +1,10 @@
+https://coolors.co/211a1d-6320ee-8075ff-f8f0fb-cad5ca
+--raisin-black: #211a1dff;
+--electric-indigo: #6320eeff;
+--medium-slate-blue: #8075ffff;
+--magnolia: #f8f0fbff;
+--ash-gray: #cad5caff;
+
 https://coolors.co/080708-3772ff-df2935-fdca40-e6e8e6
 --black: #080708ff;
 --blue-crayola: #3772ffff;

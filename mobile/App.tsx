@@ -1,7 +1,7 @@
-import {Signup} from './src/routes/Signup';
+import {Router} from './src/routes';
 
 function App(): JSX.Element {
-  return <Signup />;
+  return <Router />;
 }
 
 export default App;
