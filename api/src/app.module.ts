@@ -7,9 +7,16 @@ import { MuscleGroupsModule } from './module/muscle-groups/muscle-groups.module'
 import { SessionsModule } from './module/session/session.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './module/auth/auth.guard';
+import { UserModule } from './module/user/user.module';
 
 @Module({
-  imports: [DatabseModule, AuthModule, MuscleGroupsModule, SessionsModule],
+  imports: [
+    DatabseModule,
+    AuthModule,
+    MuscleGroupsModule,
+    SessionsModule,
+    UserModule,
+  ],
   controllers: [],
   providers: [
     {
