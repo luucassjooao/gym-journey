@@ -6,7 +6,6 @@ import {
   View,
 } from 'react-native';
 import * as S from './styles';
-import AuthService from '../../service/AuthService';
 import ButtonApp from '../../components/Button';
 import {useErrors} from '../../hooks/useErrors';
 import isEmailValid from '../../utils/isEmailValid';
@@ -16,6 +15,7 @@ import {useNavigation} from '@react-navigation/native';
 import {AuthRoutesNavigationProp} from '../../routes/public/auth.routes';
 import Toast from 'react-native-toast-message';
 import Spinner from 'react-native-loading-spinner-overlay';
+import {useAuth} from '../../hooks/useAuth';
 
 export function Signup() {
   const [name, setName] = useState('');
@@ -26,6 +26,8 @@ export function Signup() {
 
   const emailInputRef = useRef<TextInput | null>(null);
   const passwordInputRef = useRef<TextInput | null>(null);
+
+  const {signUp} = useAuth();
 
   const {errors, setError, removeError, getErrorMessageByFieldName} =
     useErrors();
@@ -76,9 +78,9 @@ export function Signup() {
     setIsSubmitting(true);
 
     try {
-      const response = await AuthService.signup(name, email, password);
+      await signUp(name, email, password);
 
-      console.log(response);
+      navigation.navigate('signin');
     } catch {
       Toast.show({
         type: 'error',

@@ -4,8 +4,8 @@ import {Signin} from '../../screen/Signin';
 import {Signup} from '../../screen/Signup';
 
 export type AuthRootParamList = {
-  signin: undefined;
-  signup: undefined;
+  signin: any;
+  signup: any;
 };
 
 export type AuthRoutesNavigationProp = NavigationProp<AuthRootParamList>;

@@ -1,6 +1,11 @@
-import {AxiosRequestConfig, AxiosResponse} from 'axios';
+import {
+  AxiosHeaders,
+  AxiosRequestConfig,
+  AxiosResponse,
+  RawAxiosRequestHeaders,
+} from 'axios';
 
-import APIError from '../errors/APIErrors';
+import APIError from '../../errors/APIErrors';
 
 import api from './api';
 
@@ -11,10 +16,11 @@ class HttpClient {
     this.baseURL = baseURL;
   }
 
-  get<T>(path: string) {
+  get<T>(path: string, headers?: RawAxiosRequestHeaders | AxiosHeaders) {
     return this.makeRequest<T>({
       method: 'get',
       url: `${this.baseURL}${path}`,
+      headers,
     });
   }
 
@@ -41,9 +47,13 @@ class HttpClient {
     });
   }
 
-  async makeRequest<T>(options: AxiosRequestConfig): Promise<T> {
+  async makeRequest<T>(
+    options: AxiosRequestConfig,
+    headers?: RawAxiosRequestHeaders | AxiosHeaders,
+  ): Promise<T> {
     const response: AxiosResponse = await api({
       ...options,
+      headers,
       validateStatus: function (status) {
         return status >= 200 && status <= 500;
       },
