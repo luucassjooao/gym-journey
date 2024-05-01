@@ -2,12 +2,13 @@ import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import {Router} from './src/routes';
 import {AuthProvider} from './src/context/auth';
 
-const queryClient = new QueryClient({
+export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: false,
-      refetchOnWindowFocus: false,
+      retry: true,
+      refetchOnWindowFocus: true,
       refetchOnReconnect: true,
+      staleTime: 10 * 60 * 1000,
       gcTime: 60 * 60 * 1000,
     },
   },

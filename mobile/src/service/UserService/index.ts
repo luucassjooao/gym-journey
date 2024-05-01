@@ -10,7 +10,9 @@ class UserService {
 
   async getUserInfo(token: string): Promise<UserType> {
     return this.httpClient.get('/user/getUserInfo', {
-      Authorization: token,
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
     });
   }
 }

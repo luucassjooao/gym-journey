@@ -51,21 +51,35 @@ export class SessionsService {
         },
         userId,
       },
-    });
-  }
-
-  findAllMyOwnSessions(userId: string) {
-    return this.sessionRepo.findMany({
-      where: {
-        userId,
+      select: {
+        date: true,
+        id: true,
+        duration: true,
+        seriesinformation: true,
+        targetedMuscles: true,
+        typeSession: true,
       },
     });
   }
 
-  findOne(id: string) {
+  async findAllMyOwnSessions(userId: string) {
+    return this.sessionRepo.findMany({
+      where: {
+        userId,
+      },
+      include: {
+        targetedMuscles: true,
+      },
+    });
+  }
+
+  async findOne(id: string) {
     return this.sessionRepo.findUnique({
       where: {
         id,
+      },
+      include: {
+        targetedMuscles: true,
       },
     });
   }
@@ -104,20 +118,8 @@ export class SessionsService {
       end: new Date(),
     };
 
-    const {
-      exerciseId,
-      newExercise,
-      series: { numberOfSerie, partials, rateSerie, reps, weight },
-    } = seriesInformation as unknown as SeriesInformationType;
-
-    const infoNewSerie = {
-      reps,
-      weight,
-      partials,
-      rateSerie,
-      exerciseId,
-      numberOfSerie,
-    };
+    const { exerciseId, newExercise, series } =
+      seriesInformation as unknown as SeriesInformationType;
 
     if (newExercise) {
       return this.sessionRepo.update({
@@ -126,7 +128,11 @@ export class SessionsService {
         },
         data: {
           seriesinformation: {
-            push: { [findExerciseIdInSeriesInformation.name]: [infoNewSerie] },
+            push: {
+              [findExerciseIdInSeriesInformation.name]: [
+                { ...series, exerciseId },
+              ],
+            },
           },
           duration: newEndSessionHour,
         },
@@ -145,7 +151,7 @@ export class SessionsService {
             const name = key;
             if (exerciseId === exerciseObj.exerciseId) {
               updateSerieInformation = {
-                [name]: [exerciseObj, infoNewSerie],
+                [name]: [exerciseObj, series],
               };
             }
           }

@@ -9,7 +9,9 @@ class AuthService {
   }
 
   async signin(email: string, password: string): Promise<UserType> {
-    return this.httpClient.post('/auth/signin', {email, password});
+    return this.httpClient.post('/auth/signin', {
+      body: {email, password},
+    });
   }
 
   async signup(
@@ -17,7 +19,9 @@ class AuthService {
     email: string,
     password: string,
   ): Promise<UserType> {
-    return this.httpClient.post('/auth/signup', {name, email, password});
+    return this.httpClient.post('/auth/signup', {
+      body: {name, email, password},
+    });
   }
 }
 

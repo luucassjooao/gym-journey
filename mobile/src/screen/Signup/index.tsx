@@ -79,8 +79,6 @@ export function Signup() {
 
     try {
       await signUp(name, email, password);
-
-      navigation.navigate('signin');
     } catch {
       Toast.show({
         type: 'error',

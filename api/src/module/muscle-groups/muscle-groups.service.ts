@@ -22,4 +22,17 @@ export class MuscleGroupsService {
       },
     });
   }
+
+  selectedMuscles(idsMusclesGroups: string[]) {
+    return this.muscleGroupRepo.findMany({
+      where: {
+        id: {
+          in: idsMusclesGroups,
+        },
+      },
+      include: {
+        exercises: true,
+      },
+    });
+  }
 }

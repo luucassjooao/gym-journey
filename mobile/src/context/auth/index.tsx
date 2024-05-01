@@ -1,7 +1,7 @@
-import {createContext, useEffect, useState} from 'react';
+import React, {createContext, useCallback, useEffect, useState} from 'react';
 import {AuthContextType, IAuthProvider} from './types';
 import {UserType} from '../../utils/types/User';
-import {onlineManager, useQuery} from '@tanstack/react-query';
+import {useQuery} from '@tanstack/react-query';
 import AuthService from '../../service/AuthService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {ASYNC_STORAGE_USER_KEY} from '../../storage/AsyncStorageKeys';
@@ -9,80 +9,77 @@ import Toast from 'react-native-toast-message';
 import UserService from '../../service/UserService';
 import {REACT_QUERY_BASIC_USER_INFOS_KEY} from '../../storage/RectQueryKeys';
 import Spinner from 'react-native-loading-spinner-overlay';
+import {getInfosOfUserFromStorage} from '../../utils/getInfosOfUserFromStorage';
 
-export const AuthContext = createContext({} as AuthContextType);
+export const AuthContext = createContext<AuthContextType>({
+  user: null,
+  logout: () => {},
+  signIn: async () => {},
+  signUp: async () => {},
+});
 
 export function AuthProvider({children}: IAuthProvider) {
   const [user, setUser] = useState<UserType | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isOnline, setIsOnline] = useState<boolean>(true);
 
-  async function getTokenUser() {
-    const userInfos = await AsyncStorage.getItem(ASYNC_STORAGE_USER_KEY);
-    const parsedUserInfos: UserType = JSON.parse(userInfos || '{}');
-    return parsedUserInfos.token;
-  }
+  const {isFetching} = useQuery({
+    enabled: false,
+    queryKey: [REACT_QUERY_BASIC_USER_INFOS_KEY],
+    queryFn: async () => {
+      const {token} = await getInfosOfUserFromStorage();
+      if (token) {
+        try {
+          const response = await UserService.getUserInfo(token);
+          setUser(response);
+          await AsyncStorage.setItem(
+            ASYNC_STORAGE_USER_KEY,
+            JSON.stringify(response),
+          );
+          return response;
+        } catch (error) {
+          console.error('Error fetching user info:', error);
+          handleLogout();
+        }
+      } else {
+        handleLogout();
+      }
+    },
+  });
 
-  useEffect(() => {
-    const onlineStatus = onlineManager.isOnline();
-    setIsOnline(onlineStatus);
+  const loadInfos = useCallback(async () => {
+    const {token, name, email, id} = await getInfosOfUserFromStorage();
+    if (token) {
+      setUser(prevState => {
+        if (!prevState) {
+          return {token, name, id, email};
+        }
+        return {...prevState, token};
+      });
+    } else {
+      handleLogout();
+    }
   }, []);
 
   useEffect(() => {
     loadInfos();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOnline]);
+  }, [loadInfos]);
 
-  const {refetch, isFetching} = useQuery({
-    enabled: false,
-    staleTime: Infinity,
-    queryKey: [REACT_QUERY_BASIC_USER_INFOS_KEY],
-    queryFn: async () => {
-      const token = await getTokenUser();
-      if (token) {
-        const response = await UserService.getUserInfo(token);
-
-        setUser(response);
-        await AsyncStorage.setItem(
-          ASYNC_STORAGE_USER_KEY,
-          JSON.stringify(response),
-        );
-      }
-
-      setUser(null);
-      await AsyncStorage.removeItem(ASYNC_STORAGE_USER_KEY);
-      logout();
-      Toast.show({
-        type: 'info',
-        text1: 'Voce foi desconectado!',
-      });
-    },
-  });
-
-  async function loadInfos() {
-    const token = await getTokenUser();
-
-    if (token) {
-      try {
-        await refetch();
-      } catch {
-        logout();
-      }
-    }
+  async function handleLogout() {
+    setUser(null);
+    await AsyncStorage.removeItem(ASYNC_STORAGE_USER_KEY);
   }
 
   async function signIn(email: string, password: string) {
     setIsLoading(true);
-
     try {
       const response = await AuthService.signin(email, password);
-
-      setUser(response);
       await AsyncStorage.setItem(
         ASYNC_STORAGE_USER_KEY,
         JSON.stringify(response),
       );
-    } catch {
+      setUser(response);
+    } catch (error) {
+      console.error('Error signing in:', error);
       Toast.show({
         type: 'error',
         text1: 'Ouve algum erro ao voce tentar fazer o login!',
@@ -96,16 +93,15 @@ export function AuthProvider({children}: IAuthProvider) {
 
   async function signUp(name: string, email: string, password: string) {
     setIsLoading(true);
-
     try {
       const response = await AuthService.signup(name, email, password);
-
       setUser(response);
       await AsyncStorage.setItem(
         ASYNC_STORAGE_USER_KEY,
         JSON.stringify(response),
       );
-    } catch {
+    } catch (error) {
+      console.error('Error signing up:', error);
       Toast.show({
         type: 'error',
         text1: 'Ouve algum erro ao voce tentar fazer o seu cadastro!',
@@ -117,19 +113,14 @@ export function AuthProvider({children}: IAuthProvider) {
     }
   }
 
-  async function logout() {
-    setUser(null);
-    await AsyncStorage.removeItem(ASYNC_STORAGE_USER_KEY);
-  }
-
   return (
     <>
       <Toast />
-      <Spinner visible={isFetching || isLoading} />
+      <Spinner visible={isLoading || isFetching} />
       <AuthContext.Provider
         value={{
           user,
-          logout,
+          logout: handleLogout,
           signIn,
           signUp,
         }}>

@@ -1,16 +1,14 @@
-import {AxiosResponse} from 'axios';
-
 export default class APIError extends Error {
-  response;
-  status;
+  public response: Response;
 
-  constructor(response: AxiosResponse) {
+  public body: any;
+
+  constructor(response: Response, body: any) {
     super();
-
-    this.message = `${response.status} - ${response.data.message}`;
 
     this.name = 'APIError';
     this.response = response;
-    this.status = response.status;
+    this.body = body;
+    this.message = body.error || `${response.status} - ${response.statusText}`;
   }
 }

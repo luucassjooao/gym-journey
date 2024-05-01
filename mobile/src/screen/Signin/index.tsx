@@ -65,8 +65,6 @@ export function Signin() {
 
     try {
       await signIn(email, password);
-
-      navigation.navigate('signup');
     } catch {
       Toast.show({
         type: 'error',
@@ -99,6 +97,7 @@ export function Signin() {
               onSubmitEditing={() => passwordInputRef.current?.focus()}
               returnKeyType="next"
               enablesReturnKeyAutomatically
+              width={100}
             />
           </FormGroup>
           <S.InfoText>Senha</S.InfoText>
@@ -113,10 +112,11 @@ export function Signin() {
               onChange={handlePasswordChange}
               error={getErrorMessageByFieldName({fieldName: 'password'})}
               returnKeyType="done"
+              width={100}
             />
           </FormGroup>
           <ButtonApp
-            text="Criar minha conta"
+            text="Login"
             disabled={!isFormValid}
             style={[!isFormValid && {opacity: 0.3}]}
             onPress={handleSubmit}

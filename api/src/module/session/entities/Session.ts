@@ -13,13 +13,22 @@ export type SeriesInformationType = {
   exerciseId: string;
   newExercise?: boolean;
   series: {
-    numberOfSerie: number;
+    exerciseId: string;
+    typeOfSerie: string;
     reps: number;
     weight: number;
     rateSerie: string;
     partials: {
       havePartials: string;
       reps: number;
+    };
+    helpedReps: {
+      haveHelped: boolean;
+      reps: number;
+    };
+    useSomeEquipment: {
+      use: boolean;
+      listOfEquipment: string[];
     };
   };
 };

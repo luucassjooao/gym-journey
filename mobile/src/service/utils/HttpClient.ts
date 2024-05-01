@@ -1,13 +1,9 @@
-import {
-  AxiosHeaders,
-  AxiosRequestConfig,
-  AxiosResponse,
-  RawAxiosRequestHeaders,
-} from 'axios';
-
 import APIError from '../../errors/APIErrors';
 
-import api from './api';
+type RequestOptions = Omit<RequestInit, 'body' | 'headers'> & {
+  body?: unknown;
+  headers?: Record<string, string> | undefined;
+};
 
 class HttpClient {
   private baseURL;
@@ -16,54 +12,75 @@ class HttpClient {
     this.baseURL = baseURL;
   }
 
-  get<T>(path: string, headers?: RawAxiosRequestHeaders | AxiosHeaders) {
-    return this.makeRequest<T>({
+  get(path: string, options?: Omit<RequestOptions, 'body'>) {
+    return this.makeRequest(path, {
       method: 'get',
-      url: `${this.baseURL}${path}`,
-      headers,
+      headers: options?.headers,
     });
   }
 
-  delete<T>(path: string) {
-    return this.makeRequest<T>({
+  delete(path: string, options?: Omit<RequestOptions, 'body'>) {
+    return this.makeRequest(path, {
       method: 'delete',
-      url: `${this.baseURL}${path}`,
+      headers: options?.headers,
     });
   }
 
-  post<T>(path: string, data: unknown) {
-    return this.makeRequest<T>({
+  post(path: string, options: RequestOptions) {
+    return this.makeRequest(path, {
       method: 'post',
-      url: `${this.baseURL}${path}`,
-      data,
+      body: options.body,
+      headers: options?.headers,
     });
   }
 
-  patch<T>(path: string, data: unknown) {
-    return this.makeRequest<T>({
+  patch(path: string, options: RequestOptions) {
+    return this.makeRequest(path, {
       method: 'patch',
-      url: `${this.baseURL}${path}`,
-      data,
+      body: options.body,
+      headers: options?.headers,
     });
   }
 
-  async makeRequest<T>(
-    options: AxiosRequestConfig,
-    headers?: RawAxiosRequestHeaders | AxiosHeaders,
-  ): Promise<T> {
-    const response: AxiosResponse = await api({
-      ...options,
-      headers,
-      validateStatus: function (status) {
-        return status >= 200 && status <= 500;
-      },
+  put(path: string, options: RequestOptions) {
+    return this.makeRequest(path, {
+      method: 'put',
+      body: options.body,
+      headers: options?.headers,
     });
+  }
 
-    if (response.status >= 200 && response.status < 400) {
-      return response.data as T;
+  async makeRequest(path: string, options: RequestOptions) {
+    const headers = new Headers();
+    if (options.body) {
+      headers.append('Content-Type', 'application/json');
     }
 
-    throw new APIError(response);
+    if (options.headers) {
+      Object.entries(options.headers).forEach(([name, value]) => {
+        headers.append(name, value);
+      });
+    }
+
+    const response = await fetch(`${this.baseURL}${path}`, {
+      method: options.method,
+      body: JSON.stringify(options.body),
+      headers,
+    });
+
+    let responseBody = null;
+    const contentType = response.headers.get('Content-Type');
+    if (contentType?.includes('application/json')) {
+      responseBody = await response.json();
+    }
+
+    if (response.ok) {
+      return responseBody;
+    }
+    console.log(JSON.stringify(response, null, 2));
+    console.log(JSON.stringify(responseBody, null, 2));
+
+    throw new APIError(response, responseBody);
   }
 }
 

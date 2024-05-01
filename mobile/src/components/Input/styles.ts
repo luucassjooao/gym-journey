@@ -7,11 +7,13 @@ export const styles = StyleSheet.create({
     backgroundColor: '#8075ff',
     color: '#fff',
     borderRadius: 8,
+    borderColor: 'rgba(106, 93, 255, 0.3)',
+    borderWidth: 1,
   },
   inputFocused: {
-    borderColor: '1px rgba(106, 93, 255, 1)',
+    borderColor: 'rgba(106, 93, 255, 1)',
   },
   error: {
-    borderColor: '1px rgba(255, 0, 0, 1)',
+    borderColor: 'rgba(255, 0, 0, 1)',
   },
 });

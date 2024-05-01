@@ -1,7 +1,7 @@
 {
   "extends": "@tsconfig/react-native/tsconfig.json",
   "compilerOptions": {
-    "target": "es2016",
-    "lib": ["dom", "es2016"],
+    "target": "es2017",
+    "lib": ["dom", "es2017"],
   },
 }

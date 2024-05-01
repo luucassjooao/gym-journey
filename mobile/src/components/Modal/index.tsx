@@ -1,0 +1,65 @@
+import {Modal} from 'react-native';
+import * as S from './styles';
+import ButtonApp from '../Button';
+
+interface IModal {
+  danger: boolean;
+  visible: boolean;
+  title: string;
+  isLoading?: boolean;
+  children: JSX.Element | JSX.Element[];
+  cancelLabel: string;
+  confirmLabel: string;
+  onCancel: () => void;
+  onConfirm: () => void;
+}
+
+export default function ModalApp({
+  danger,
+  visible,
+  title,
+  isLoading,
+  children,
+  cancelLabel,
+  confirmLabel,
+  onCancel,
+  onConfirm,
+}: IModal) {
+  return (
+    <Modal visible={visible} animationType="fade" transparent={true}>
+      <S.Overlay>
+        <S.Container>
+          <S.Title>{title}</S.Title>
+
+          <S.ModalBody>{children}</S.ModalBody>
+
+          <S.Footer>
+            <ButtonApp
+              onPress={onCancel}
+              disabled={isLoading}
+              text={cancelLabel}
+              style={{
+                paddingHorizontal: 12,
+                width: 140,
+                marginRight: 8,
+                backgroundColor: '#f00',
+              }}
+            />
+
+            {confirmLabel !== '' && (
+              <ButtonApp
+                onPress={onConfirm}
+                disabled={isLoading}
+                text={confirmLabel}
+                style={{
+                  paddingHorizontal: 12,
+                  width: 140,
+                }}
+              />
+            )}
+          </S.Footer>
+        </S.Container>
+      </S.Overlay>
+    </Modal>
+  );
+}
