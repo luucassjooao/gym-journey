@@ -10,7 +10,7 @@ import MuscleGroupService from '../../../service/MuscleGroupService';
 import type {IReturnDataGetMusclesGroups} from '../../../service/MuscleGroupService';
 import DropdownApp from '../../Dropdown';
 import {queryClient} from '../../../../App';
-import {IExerciseSession} from '../../../service/SessionService/type';
+import {ISession} from '../../../utils/types/Session';
 
 interface IProps {
   isModalVisible: boolean;
@@ -58,12 +58,9 @@ export default function CreateNewSession({
         musclesGroupId: selectedMusclesGroups.map(mg => mg.id),
       });
 
-      queryClient.setQueryData(
-        ['HomeSessions'],
-        (oldData: IExerciseSession[]) => {
-          return [...(oldData || []), createSession];
-        },
-      );
+      queryClient.setQueryData(['HomeSessions'], (oldData: ISession[]) => {
+        return [...(oldData || []), createSession];
+      });
 
       navigation.navigate('editSessionInfos', {
         sessionId: createSession.id,

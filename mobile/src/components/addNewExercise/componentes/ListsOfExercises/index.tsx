@@ -1,9 +1,7 @@
 import {FlatList} from 'react-native';
-import {
-  IExerciseType,
-  IReturnDataGetMusclesGroups,
-} from '../../../../service/MuscleGroupService';
+import {IReturnDataGetMusclesGroups} from '../../../../service/MuscleGroupService';
 import ExerciseContainer from '../ExerciseContainer';
+import {IExerciseType} from '../../../../utils/types/Exercise';
 
 interface IProps {
   mainList: IReturnDataGetMusclesGroups[];
@@ -22,15 +20,15 @@ export function ListOfExercises({
       renderItem={({item}) => (
         <FlatList
           data={item.exercises}
-          renderItem={({item}) => (
+          renderItem={({item: exercise}) => (
             <ExerciseContainer
-              key={item.id}
-              item={item}
+              key={exercise.id}
+              item={exercise}
               handleAddNewExercise={handleAddNewExercise}
-              thisExerciseIsSelected={findTheExerciseOnList(item.name)}
+              thisExerciseIsSelected={findTheExerciseOnList(exercise.name)}
             />
           )}
-          keyExtractor={item => item.id}
+          keyExtractor={exerciseItem => exerciseItem.id}
           keyboardShouldPersistTaps="handled"
         />
       )}

@@ -10,7 +10,6 @@ import {
 } from '../../routes/private';
 import {useQueries} from '@tanstack/react-query';
 import MuscleGroupService, {
-  IExerciseType,
   IReturnDataGetMusclesGroups,
 } from '../../service/MuscleGroupService';
 import {Image} from 'react-native';
@@ -18,54 +17,20 @@ import {Row, Rows, Table} from 'react-native-reanimated-table';
 import AddNewSets from './components/AddNewSets';
 import SessionService from '../../service/SessionService';
 import Toast from 'react-native-toast-message';
-import {IExerciseSession} from '../../service/SessionService/type';
 import ModalApp from '../../components/Modal';
+import {
+  IExerciseType,
+  IExerciseTypeProps,
+  IOpenModalInfos,
+  InfosSerie,
+  TSubmitSerieInfos,
+} from '../../utils/types/Exercise';
+import {ISession} from '../../utils/types/Session';
 
 type RouteProps = RouteProp<PrivateRoutesParamList, 'editSessionInfos'>;
 
 interface Props {
   route: RouteProps;
-}
-
-export type IExerciseTypeProps = IExerciseType & {
-  series: InfosSerie[];
-};
-
-export interface IPartials {
-  reps: number;
-  havePartials: boolean;
-}
-
-export interface IHelpedReps {
-  haveHelped: boolean;
-  reps: number;
-}
-
-export interface IUseSomeEquipment {
-  use: boolean;
-  listOfEquipment: string[];
-}
-
-export interface InfosSerie {
-  newExercise?: boolean;
-  reps: number;
-  exerciseId: string;
-  partials: IPartials;
-  rateSerie: string;
-  weight: number;
-  helpedReps: IHelpedReps;
-  useSomeEquipment: IUseSomeEquipment;
-  typeOfSerie: string;
-}
-
-export interface ISubmitSerieInfos {
-  weight: number;
-  reps: number;
-  partials: IPartials;
-  helpedReps: IHelpedReps;
-  useSomeEquipment: IUseSomeEquipment;
-  rateSerie: string;
-  typeOfSerie: string;
 }
 
 export default function EditSessionInfos({route}: Props) {
@@ -100,22 +65,7 @@ export default function EditSessionInfos({route}: Props) {
       newExercise: true,
     });
   const [addNewSet, setAddNewSet] = useState<{id: string; add: boolean}>();
-  const [openModalInfos, setOpenModalInfos] = useState<{
-    openModal: boolean;
-    helpedReps: {
-      haveHelped: boolean;
-      reps: number;
-    };
-    useSomeEquipment: {
-      listOfEquipment: string[];
-      use: boolean;
-    };
-    partials: {
-      havePartials: boolean;
-      reps: number;
-    };
-    rateSerie: string;
-  }>({
+  const [openModalInfos, setOpenModalInfos] = useState<IOpenModalInfos>({
     openModal: false,
     helpedReps: {
       haveHelped: false,
@@ -150,7 +100,7 @@ export default function EditSessionInfos({route}: Props) {
       },
       {
         queryKey: [sessionId],
-        queryFn: async (): Promise<IExerciseSession> =>
+        queryFn: async (): Promise<ISession> =>
           SessionService.getUniqueSession(sessionId),
       },
     ],
@@ -261,7 +211,7 @@ export default function EditSessionInfos({route}: Props) {
     useSomeEquipment,
     rateSerie,
     typeOfSerie,
-  }: ISubmitSerieInfos) {
+  }: Omit<TSubmitSerieInfos, 'exerciseId'>) {
     try {
       await SessionService.updateSeriesInformation({
         idOfSession: sessionId,

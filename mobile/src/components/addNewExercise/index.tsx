@@ -2,7 +2,6 @@ import InputApp from '../Input';
 import * as S from './styles';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import MuscleGroupService, {
-  IExerciseType,
   IReturnDataGetMusclesGroups,
 } from '../../service/MuscleGroupService';
 import {FlatList} from 'react-native-gesture-handler';
@@ -19,6 +18,7 @@ import {useQueries} from '@tanstack/react-query';
 import Spinner from 'react-native-loading-spinner-overlay';
 import {ListOfExercises} from './componentes/ListsOfExercises';
 import DropdownApp from '../Dropdown';
+import {IExerciseType} from '../../utils/types/Exercise';
 
 const renderComponent = (condition: boolean, component: ReactNode) => {
   return condition ? component : null;

@@ -1,26 +1,11 @@
-import {
-  IHelpedReps,
-  IPartials,
-  IUseSomeEquipment,
-} from '../../screen/EditSessionInfos';
 import {getInfosOfUserFromStorage} from '../../utils/getInfosOfUserFromStorage';
+import {TSubmitSerieInfos} from '../../utils/types/Exercise';
+import {ISession} from '../../utils/types/Session';
 import HttpClient from '../utils/HttpClient';
-import {IExerciseSession} from './type';
 
 interface IPropsCreateNewSession {
   typeSession: string;
   musclesGroupId: string[];
-}
-
-export interface InfosSerie {
-  reps: number;
-  partials: IPartials;
-  rateSerie: string;
-  weight: number;
-  helpedReps: IHelpedReps;
-  useSomeEquipment: IUseSomeEquipment;
-  typeOfSerie: string;
-  exerciseId: string;
 }
 
 interface IPropsUpdateSeriesInformation {
@@ -28,7 +13,7 @@ interface IPropsUpdateSeriesInformation {
   seriesInformation: {
     newExercise: boolean;
     exerciseId: string;
-    series: Omit<InfosSerie, 'newExercise'>;
+    series: TSubmitSerieInfos;
   };
 }
 
@@ -42,7 +27,7 @@ class SessionService {
   async createNewSession({
     typeSession,
     musclesGroupId,
-  }: IPropsCreateNewSession): Promise<IExerciseSession> {
+  }: IPropsCreateNewSession): Promise<ISession> {
     const {token} = await getInfosOfUserFromStorage();
     return this.httpClient.post(`/sessions/${musclesGroupId.join(',')}`, {
       body: {
@@ -56,7 +41,7 @@ class SessionService {
     });
   }
 
-  async getMyOwsSessions(): Promise<IExerciseSession[]> {
+  async getMyOwsSessions(): Promise<ISession[]> {
     const {token} = await getInfosOfUserFromStorage();
     return this.httpClient.get('/sessions', {
       headers: {
@@ -65,7 +50,7 @@ class SessionService {
     });
   }
 
-  async getUniqueSession(id: string): Promise<IExerciseSession> {
+  async getUniqueSession(id: string): Promise<ISession> {
     const {token} = await getInfosOfUserFromStorage();
     return this.httpClient.get(`/sessions/${id}`, {
       headers: {

@@ -1,3 +1,4 @@
+import {IExerciseType} from '../../utils/types/Exercise';
 import HttpClient from '../utils/HttpClient';
 
 export interface IReturnDataGetMusclesGroups {
@@ -5,13 +6,6 @@ export interface IReturnDataGetMusclesGroups {
   name: string;
   media?: string;
   exercises?: IExerciseType[];
-}
-
-export interface IExerciseType {
-  id: string;
-  musclesGroupsId: string;
-  name: string;
-  media: string;
 }
 
 class MuscleGroupService {

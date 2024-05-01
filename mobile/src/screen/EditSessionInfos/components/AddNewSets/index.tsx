@@ -1,12 +1,6 @@
 import {useState} from 'react';
 import {Rows} from 'react-native-reanimated-table';
 import {
-  IHelpedReps,
-  IPartials,
-  ISubmitSerieInfos,
-  IUseSomeEquipment,
-} from '../..';
-import {
   Button,
   NativeSyntheticEvent,
   TextInput,
@@ -18,9 +12,15 @@ import {Text} from 'react-native';
 import OptionsApp from '../../../../components/Options';
 import InputWithVerification from '../InputWithVerification';
 import ButtonApp from '../../../../components/Button';
+import {
+  IHelpedReps,
+  IPartials,
+  IUseSomeEquipment,
+  TSubmitSerieInfos,
+} from '../../../../utils/types/Exercise';
 
 interface IProps {
-  handleUpdateInfosOfSeries: (x: ISubmitSerieInfos) => void;
+  handleUpdateInfosOfSeries: (x: Omit<TSubmitSerieInfos, 'exerciseId'>) => void;
   handleChangeAddNewSetToFalse: () => void;
 }
 

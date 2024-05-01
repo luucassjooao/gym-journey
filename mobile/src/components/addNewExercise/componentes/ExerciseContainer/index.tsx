@@ -1,6 +1,6 @@
 import {Text} from 'react-native';
 import * as S from './styles';
-import {IExerciseType} from '../../../../service/MuscleGroupService';
+import {IExerciseType} from '../../../../utils/types/Exercise';
 
 interface IProps {
   item: IExerciseType;
