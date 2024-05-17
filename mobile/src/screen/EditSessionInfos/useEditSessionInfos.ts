@@ -1,0 +1,320 @@
+import {useEffect, useState} from 'react';
+import MuscleGroupService, {
+  IReturnDataGetMusclesGroups,
+} from '../../service/MuscleGroupService';
+import {
+  IExerciseType,
+  IExerciseTypeProps,
+  IOpenModalInfos,
+  InfosSerie,
+  TSubmitSerieInfos,
+} from '../../utils/types/Exercise';
+import {PrivateRouteNavitationProp} from '../../routes/private';
+import {useNavigation} from '@react-navigation/native';
+import {useQueries} from '@tanstack/react-query';
+import {ISession} from '../../utils/types/Session';
+import SessionService from '../../service/SessionService';
+import Toast from 'react-native-toast-message';
+import {IProps} from '.';
+
+export function useEditSessionInfos({route}: IProps) {
+  const {sessionId, idOfMusclesGroups} = route.params;
+  const [addExerciseContainer, setAddExerciseContainer] =
+    useState<boolean>(false);
+  const [listOfNewExercises, setListOfNewExercises] = useState<
+    IExerciseTypeProps[]
+  >([]);
+  const [selectedMuscleGroup, setSelectedMuscleGroup] =
+    useState<IReturnDataGetMusclesGroups | null>();
+
+  const [addNewInfosOnExercise, setAddNewInfosOnExercise] =
+    useState<InfosSerie>({
+      reps: 0,
+      exerciseId: '',
+      partials: {
+        havePartials: false,
+        reps: 0,
+      },
+      rateSerie: '',
+      weight: 0,
+      helpedReps: {
+        haveHelped: false,
+        reps: 0,
+      },
+      useSomeEquipment: {
+        listOfEquipment: [],
+        use: false,
+      },
+      typeOfSerie: '',
+      newExercise: true,
+    });
+  const [addNewSet, setAddNewSet] = useState<{id: string; add: boolean}>();
+  const [openModalInfos, setOpenModalInfos] = useState<IOpenModalInfos>({
+    openModal: false,
+    helpedReps: {
+      haveHelped: false,
+      reps: 0,
+    },
+    useSomeEquipment: {
+      listOfEquipment: [],
+      use: false,
+    },
+    partials: {
+      havePartials: false,
+      reps: 0,
+    },
+    rateSerie: '',
+  });
+
+  const navigate = useNavigation<PrivateRouteNavitationProp>();
+
+  const idsOfMusclesGroups =
+    typeof idOfMusclesGroups === 'string'
+      ? idOfMusclesGroups
+      : (idOfMusclesGroups as string[]).join(',');
+  const {
+    '0': {data: dataMusclesGroups},
+    '1': {data: dataSessionAlreadyExist},
+  } = useQueries({
+    queries: [
+      {
+        queryKey: [`${idsOfMusclesGroups}`],
+        queryFn: async (): Promise<IReturnDataGetMusclesGroups[]> =>
+          MuscleGroupService.seletectedMusclesGroups(idsOfMusclesGroups),
+      },
+      {
+        queryKey: [sessionId],
+        queryFn: async (): Promise<ISession> =>
+          SessionService.getUniqueSession(sessionId),
+      },
+    ],
+  });
+
+  useEffect(() => {
+    if (dataSessionAlreadyExist) {
+      for (const dataObject of dataSessionAlreadyExist.seriesinformation) {
+        for (const key in dataObject) {
+          if (Object.hasOwnProperty.call(dataObject, key)) {
+            const series = dataObject[key];
+            let exerciseId: string;
+            for (let keyName in series) {
+              console.log(series[keyName]);
+              const mapTheSeries = (
+                series[keyName] as unknown as TSubmitSerieInfos[]
+              ).map(e => {
+                exerciseId = e.exerciseId;
+                const reps = e.reps;
+                const weight = e.weight;
+                const partials = e.partials;
+                const rateSerie = e.rateSerie;
+                const helpedReps = e.helpedReps;
+                const typeOfSerie = e.typeOfSerie;
+                const useSomeEquipment = e.useSomeEquipment;
+                return {
+                  exerciseId,
+                  reps,
+                  weight,
+                  partials,
+                  rateSerie,
+                  helpedReps,
+                  typeOfSerie,
+                  useSomeEquipment,
+                };
+              });
+              setListOfNewExercises(prevState => {
+                if (prevState.some(re => re.id === exerciseId)) {
+                  return prevState;
+                }
+                const newExercise = {
+                  id: exerciseId,
+                  media: '',
+                  musclesGroupsId: idsOfMusclesGroups,
+                  name: keyName,
+                  series: mapTheSeries,
+                };
+                return [...prevState, newExercise];
+              });
+            }
+          }
+        }
+      }
+    }
+  }, [dataSessionAlreadyExist, idsOfMusclesGroups]);
+
+  function addNewExerciseContainer() {
+    setAddExerciseContainer(prevState => prevState !== true);
+  }
+
+  const tableInfos = {
+    tableHead: ['Reps', 'Peso', 'Tipo da serie', 'Mais Informações'],
+  };
+
+  function handleAddNewExercise(exercise: IExerciseType) {
+    setListOfNewExercises(prevState => {
+      if (prevState.some(({name}) => name === exercise.name)) {
+        return prevState.filter(({name}) => name !== exercise.name);
+      }
+
+      const exerciseObj: IExerciseTypeProps = {
+        id: exercise.id,
+        series: [],
+        media: exercise.media,
+        musclesGroupsId: exercise.musclesGroupsId,
+        name: exercise.name,
+      };
+      return [...prevState, exerciseObj];
+    });
+  }
+
+  function findTheExerciseOnList(exerciseName: string): boolean {
+    return listOfNewExercises.find(exercise => exercise.name === exerciseName)
+      ? true
+      : false;
+  }
+
+  function addTheNewOnesExercisesForEditingInfos() {
+    setAddExerciseContainer(false);
+  }
+
+  function handleChangeAddNewToTrue(id: string) {
+    const hasSeriesInAnyExercise = listOfNewExercises.some(
+      exercise => exercise.series.length > 0,
+    );
+
+    setAddNewSet({id, add: true});
+    setAddNewInfosOnExercise({
+      exerciseId: id,
+      newExercise: !hasSeriesInAnyExercise,
+      reps: 0,
+      partials: {
+        havePartials: false,
+        reps: 0,
+      },
+      rateSerie: '',
+      weight: 0,
+      helpedReps: {
+        haveHelped: false,
+        reps: 0,
+      },
+      useSomeEquipment: {
+        listOfEquipment: [],
+        use: false,
+      },
+      typeOfSerie: '',
+    });
+  }
+
+  function handleChangeAddNewSetToFalse() {
+    setAddNewSet(prevState => ({
+      id: prevState!.id,
+      add: false,
+    }));
+  }
+
+  async function handleUpdateInfosOfSeries({
+    weight,
+    reps,
+    partials,
+    helpedReps,
+    useSomeEquipment,
+    rateSerie,
+    typeOfSerie,
+  }: Omit<TSubmitSerieInfos, 'exerciseId'>) {
+    try {
+      await SessionService.updateSeriesInformation({
+        idOfSession: sessionId,
+        seriesInformation: {
+          exerciseId: addNewInfosOnExercise.exerciseId,
+          newExercise: addNewInfosOnExercise.newExercise as boolean,
+          series: {
+            exerciseId: addNewInfosOnExercise.exerciseId,
+            helpedReps,
+            partials,
+            rateSerie,
+            reps,
+            useSomeEquipment,
+            weight,
+            typeOfSerie,
+          },
+        },
+      });
+
+      setListOfNewExercises(prevState => {
+        const updatedList = prevState.map(exercise => {
+          if (exercise.id === addNewInfosOnExercise.exerciseId) {
+            return {
+              ...exercise,
+              series: [
+                ...exercise.series,
+                {
+                  exerciseId: addNewInfosOnExercise.exerciseId,
+                  weight,
+                  reps,
+                  partials,
+                  helpedReps,
+                  useSomeEquipment,
+                  rateSerie,
+                  newExercise: false,
+                  typeOfSerie,
+                },
+              ],
+            };
+          }
+          return exercise;
+        });
+
+        return updatedList;
+      });
+    } catch {
+      Toast.show({
+        type: 'error',
+        text1: 'Ouve algum erro ao voce tentar fazer o login!',
+        text2: 'Tente novamente!',
+        position: 'bottom',
+      });
+    } finally {
+      setAddNewSet({id: '', add: false});
+      setAddNewInfosOnExercise({
+        reps: 0,
+        exerciseId: '',
+        partials: {
+          havePartials: false,
+          reps: 0,
+        },
+        rateSerie: '',
+        weight: 0,
+        helpedReps: {
+          haveHelped: false,
+          reps: 0,
+        },
+        useSomeEquipment: {
+          listOfEquipment: [],
+          use: false,
+        },
+        typeOfSerie: '',
+        newExercise: true,
+      });
+    }
+  }
+
+  return {
+    navigate,
+    idOfMusclesGroups,
+    addNewExerciseContainer,
+    addExerciseContainer,
+    dataMusclesGroups,
+    findTheExerciseOnList,
+    handleAddNewExercise,
+    listOfNewExercises,
+    selectedMuscleGroup,
+    setSelectedMuscleGroup,
+    addTheNewOnesExercisesForEditingInfos,
+    tableInfos,
+    setOpenModalInfos,
+    addNewSet,
+    handleUpdateInfosOfSeries,
+    handleChangeAddNewSetToFalse,
+    handleChangeAddNewToTrue,
+    openModalInfos,
+  };
+}

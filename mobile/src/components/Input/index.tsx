@@ -21,9 +21,9 @@ const InputApp = forwardRef((props: InputAppProps, ref: Ref<TextInput>) => {
         isFocused && styles.inputFocused,
         error ? styles.error : null,
         {
-          width: `${width}%` || '100%',
-          backgroundColor: background || '#8075ff',
-          color: colorText || '#fff',
+          width: width ? `${width}%` : '100%',
+          backgroundColor: background ? background : '#8075ff',
+          color: colorText ? colorText : '#fff',
         },
       ]}
       onFocus={() => setIsFocused(true)}

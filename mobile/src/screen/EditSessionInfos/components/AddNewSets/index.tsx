@@ -1,12 +1,10 @@
 import {useState} from 'react';
-import {Rows} from 'react-native-reanimated-table';
+import {Rows, TableWrapper} from 'react-native-reanimated-table';
 import {
-  Button,
   NativeSyntheticEvent,
-  TextInput,
+  StyleSheet,
   TextInputChangeEventData,
 } from 'react-native';
-import {StyleSheet} from 'react-native';
 import ModalApp from '../../../../components/Modal';
 import {Text} from 'react-native';
 import OptionsApp from '../../../../components/Options';
@@ -18,6 +16,7 @@ import {
   IUseSomeEquipment,
   TSubmitSerieInfos,
 } from '../../../../utils/types/Exercise';
+import * as S from './styles';
 
 interface IProps {
   handleUpdateInfosOfSeries: (x: Omit<TSubmitSerieInfos, 'exerciseId'>) => void;
@@ -182,30 +181,36 @@ export default function AddNewSets({
 
   return (
     <>
-      <Rows
-        data={[
-          [
-            <TextInput
-              placeholder={'? Reps'}
-              value={String(reps)}
-              onChange={handleChangeReps}
-            />,
-            <TextInput
-              placeholder={'? Peso'}
-              value={String(weight)}
-              onChange={handleChangeWeight}
-            />,
-            <TextInput
-              placeholder={'? Qual o tipo desta serie'}
-              value={typeOfSerie}
-              onChange={handleChangeTypeOfSerie}
-            />,
-            <Button title="+ Infos" onPress={() => setOpenModal(true)} />,
-          ],
-        ]}
-        style={{backgroundColor: '#fff'}}
-        textStyle={stylesTable.text}
-      />
+      <TableWrapper borderStyle={styles.borderStyle} style={{marginLeft: 2}}>
+        <Rows
+          data={[
+            [
+              <S.TextInput
+                placeholder={'? Reps'}
+                value={String(reps) === '0' ? '' : String(reps)}
+                onChange={handleChangeReps}
+              />,
+              <S.TextInput
+                placeholder={'? Peso'}
+                value={String(weight) === '0' ? '' : String(weight)}
+                onChange={handleChangeWeight}
+              />,
+              <S.TextInput
+                placeholder={'? Qual o tipo desta serie'}
+                value={typeOfSerie}
+                onChange={handleChangeTypeOfSerie}
+              />,
+              <S.ButtonMoreInfos onPress={() => setOpenModal(true)}>
+                <S.Text>+ Infos</S.Text>
+              </S.ButtonMoreInfos>,
+            ],
+          ]}
+          style={{
+            backgroundColor: '#a184da',
+            height: 35,
+          }}
+        />
+      </TableWrapper>
       <ButtonApp
         text="Cancelar Serie"
         style={{backgroundColor: '#f00'}}
@@ -281,8 +286,20 @@ export default function AddNewSets({
   );
 }
 
-const stylesTable = StyleSheet.create({
+const styles = StyleSheet.create({
   container: {flex: 1},
-  head: {backgroundColor: '#f1f8ff'},
-  text: {marginLeft: 6, fontSize: 12},
+  head: {
+    backgroundColor: '#6320eeff',
+  },
+  textWhiteText: {
+    color: '#fff',
+  },
+  borderStyle: {
+    borderWidth: 2,
+    borderColor: '#1f005d',
+  },
+  rowsStyle: {
+    backgroundColor: '#cab9ed',
+    height: 25,
+  },
 });

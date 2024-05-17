@@ -3,13 +3,13 @@ import styled from 'styled-components/native';
 export const Container = styled.View`
   background: #0d0a1e;
   flex: 1;
-  bottom: 0px;
 `;
 
 export const TopBarInfos = styled.View`
-  background: #fff;
   width: 100%;
-  height: 80px;
+  border: 2px;
+  padding-bottom: 15px;
+  border-bottom-color: #fff;
 `;
 
 export const ContainerInfoExercise = styled.View`
@@ -27,4 +27,47 @@ export const WrapperInfoExercise = styled.View`
 export const NameImageOfExercise = styled.View`
   flex-direction: row;
   gap: 16px;
+  margin-bottom: 10px;
+`;
+
+export const Header = styled.View`
+  border: 2px;
+  border-bottom-color: #fff;
+  height: 50px;
+  margin-bottom: 10px;
+  flex-direction: row;
+  justify-content: space-between;
+`;
+
+export const ButtonHeader = styled.TouchableOpacity`
+  border: 1px #fff;
+  justify-content: center;
+  align-items: center;
+  height: 40px;
+  margin: 2px 10px 0px 10px;
+  padding: 8px;
+  border-radius: 8px;
+`;
+export const TextButton = styled.Text`
+  color: #fff;
+`;
+
+export const ButtonMoreInfos = styled.TouchableOpacity`
+  align-items: center;
+  background: #361874;
+  width: 100%;
+  height: 100%;
+`;
+
+export const Image = styled.Image`
+  width: 70px;
+  height: 70px;
+  border-radius: 20px;
+`;
+
+export const ViewAddExercises = styled.View`
+  z-index: 99;
+  position: absolute;
+  bottom: 20px;
+  align-self: center;
 `;

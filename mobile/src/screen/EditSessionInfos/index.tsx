@@ -1,306 +1,60 @@
-import {Button, FlatList, StyleSheet, Text, View} from 'react-native';
+import {FlatList, StyleSheet, Text, View} from 'react-native';
 import * as S from './styles';
 import ButtonApp from '../../components/Button';
-import {useEffect, useState} from 'react';
 import AddNewExercise from '../../components/addNewExercise';
-import {RouteProp, useNavigation} from '@react-navigation/native';
-import {
-  PrivateRouteNavitationProp,
-  PrivateRoutesParamList,
-} from '../../routes/private';
-import {useQueries} from '@tanstack/react-query';
-import MuscleGroupService, {
-  IReturnDataGetMusclesGroups,
-} from '../../service/MuscleGroupService';
-import {Image} from 'react-native';
+import {RouteProp} from '@react-navigation/native';
+import {PrivateRoutesParamList} from '../../routes/private';
 import {Row, Rows, Table} from 'react-native-reanimated-table';
 import AddNewSets from './components/AddNewSets';
-import SessionService from '../../service/SessionService';
 import Toast from 'react-native-toast-message';
 import ModalApp from '../../components/Modal';
-import {
-  IExerciseType,
-  IExerciseTypeProps,
-  IOpenModalInfos,
-  InfosSerie,
-  TSubmitSerieInfos,
-} from '../../utils/types/Exercise';
-import {ISession} from '../../utils/types/Session';
+import {useEditSessionInfos} from './useEditSessionInfos';
+import TwoTextApp from '../../components/TwoText';
 
 type RouteProps = RouteProp<PrivateRoutesParamList, 'editSessionInfos'>;
-
-interface Props {
+export interface IProps {
   route: RouteProps;
 }
 
-export default function EditSessionInfos({route}: Props) {
-  const {sessionId, idOfMusclesGroups} = route.params;
-  const [addExerciseContainer, setAddExerciseContainer] =
-    useState<boolean>(false);
-  const [listOfNewExercises, setListOfNewExercises] = useState<
-    IExerciseTypeProps[]
-  >([]);
-  const [selectedMuscleGroup, setSelectedMuscleGroup] =
-    useState<IReturnDataGetMusclesGroups | null>();
-
-  const [addNewInfosOnExercise, setAddNewInfosOnExercise] =
-    useState<InfosSerie>({
-      reps: 0,
-      exerciseId: '',
-      partials: {
-        havePartials: false,
-        reps: 0,
-      },
-      rateSerie: '',
-      weight: 0,
-      helpedReps: {
-        haveHelped: false,
-        reps: 0,
-      },
-      useSomeEquipment: {
-        listOfEquipment: [],
-        use: false,
-      },
-      typeOfSerie: '',
-      newExercise: true,
-    });
-  const [addNewSet, setAddNewSet] = useState<{id: string; add: boolean}>();
-  const [openModalInfos, setOpenModalInfos] = useState<IOpenModalInfos>({
-    openModal: false,
-    helpedReps: {
-      haveHelped: false,
-      reps: 0,
-    },
-    useSomeEquipment: {
-      listOfEquipment: [],
-      use: false,
-    },
-    partials: {
-      havePartials: false,
-      reps: 0,
-    },
-    rateSerie: '',
-  });
-
-  const navigate = useNavigation<PrivateRouteNavitationProp>();
-
-  const idsOfMusclesGroups =
-    typeof idOfMusclesGroups === 'string'
-      ? idOfMusclesGroups
-      : (idOfMusclesGroups as string[]).join(',');
+export default function EditSessionInfos({route}: IProps) {
   const {
-    '0': {data: dataMusclesGroups},
-    '1': {data: dataSessionAlreadyExist},
-  } = useQueries({
-    queries: [
-      {
-        queryKey: [`${idsOfMusclesGroups}`],
-        queryFn: async (): Promise<IReturnDataGetMusclesGroups[]> =>
-          MuscleGroupService.seletectedMusclesGroups(idsOfMusclesGroups),
-      },
-      {
-        queryKey: [sessionId],
-        queryFn: async (): Promise<ISession> =>
-          SessionService.getUniqueSession(sessionId),
-      },
-    ],
-  });
-
-  useEffect(() => {
-    if (dataSessionAlreadyExist) {
-      for (const dataObject of dataSessionAlreadyExist.seriesinformation) {
-        for (const key in dataObject) {
-          if (Object.hasOwnProperty.call(dataObject, key)) {
-            const name = key;
-            const series = dataObject[key];
-            setListOfNewExercises(prevState => {
-              const idOfTheExercise = dataObject[name][0].exerciseId;
-              if (prevState.some(re => re.id === idOfTheExercise)) {
-                return prevState;
-              }
-              const newExercise: IExerciseTypeProps = {
-                id: idOfTheExercise,
-                media: '',
-                musclesGroupsId: idsOfMusclesGroups,
-                name,
-                series,
-              };
-              return [...prevState, newExercise];
-            });
-          }
-        }
-      }
-    }
-  }, [dataSessionAlreadyExist, idsOfMusclesGroups]);
-
-  function addNewExerciseContainer() {
-    setAddExerciseContainer(prevState => prevState !== true);
-  }
-
-  const tableInfos = {
-    tableHead: ['Reps', 'Peso', 'Tipo da serie', 'Mais Informações'],
-  };
-
-  function handleAddNewExercise(exercise: IExerciseType) {
-    setListOfNewExercises(prevState => {
-      if (prevState.some(({name}) => name === exercise.name)) {
-        return prevState.filter(({name}) => name !== exercise.name);
-      }
-
-      const exerciseObj: IExerciseTypeProps = {
-        id: exercise.id,
-        series: [],
-        media: exercise.media,
-        musclesGroupsId: exercise.musclesGroupsId,
-        name: exercise.name,
-      };
-      return [...prevState, exerciseObj];
-    });
-  }
-
-  function findTheExerciseOnList(exerciseName: string): boolean {
-    return listOfNewExercises.find(exercise => exercise.name === exerciseName)
-      ? true
-      : false;
-  }
-
-  function addTheNewOnesExercisesForEditingInfos() {
-    setAddExerciseContainer(false);
-  }
-
-  function handleChangeAddNewToTrue(id: string) {
-    const hasSeriesInAnyExercise = listOfNewExercises.some(
-      exercise => exercise.series.length > 0,
-    );
-
-    setAddNewSet({id, add: true});
-    setAddNewInfosOnExercise({
-      exerciseId: id,
-      newExercise: !hasSeriesInAnyExercise,
-      reps: 0,
-      partials: {
-        havePartials: false,
-        reps: 0,
-      },
-      rateSerie: '',
-      weight: 0,
-      helpedReps: {
-        haveHelped: false,
-        reps: 0,
-      },
-      useSomeEquipment: {
-        listOfEquipment: [],
-        use: false,
-      },
-      typeOfSerie: '',
-    });
-  }
-
-  function handleChangeAddNewSetToFalse() {
-    setAddNewSet(prevState => ({
-      id: prevState!.id,
-      add: false,
-    }));
-  }
-
-  async function handleUpdateInfosOfSeries({
-    weight,
-    reps,
-    partials,
-    helpedReps,
-    useSomeEquipment,
-    rateSerie,
-    typeOfSerie,
-  }: Omit<TSubmitSerieInfos, 'exerciseId'>) {
-    try {
-      await SessionService.updateSeriesInformation({
-        idOfSession: sessionId,
-        seriesInformation: {
-          exerciseId: addNewInfosOnExercise.exerciseId,
-          newExercise: addNewInfosOnExercise.newExercise as boolean,
-          series: {
-            exerciseId: addNewInfosOnExercise.exerciseId,
-            helpedReps,
-            partials,
-            rateSerie,
-            reps,
-            useSomeEquipment,
-            weight,
-            typeOfSerie,
-          },
-        },
-      });
-
-      setListOfNewExercises(prevState => {
-        const updatedList = prevState.map(exercise => {
-          if (exercise.id === addNewInfosOnExercise.exerciseId) {
-            return {
-              ...exercise,
-              series: [
-                ...exercise.series,
-                {
-                  exerciseId: addNewInfosOnExercise.exerciseId,
-                  weight,
-                  reps,
-                  partials,
-                  helpedReps,
-                  useSomeEquipment,
-                  rateSerie,
-                  newExercise: false,
-                  typeOfSerie,
-                },
-              ],
-            };
-          }
-          return exercise;
-        });
-
-        return updatedList;
-      });
-    } catch {
-      Toast.show({
-        type: 'error',
-        text1: 'Ouve algum erro ao voce tentar fazer o login!',
-        text2: 'Tente novamente!',
-        position: 'bottom',
-      });
-    } finally {
-      setAddNewSet({id: '', add: false});
-      setAddNewInfosOnExercise({
-        reps: 0,
-        exerciseId: '',
-        partials: {
-          havePartials: false,
-          reps: 0,
-        },
-        rateSerie: '',
-        weight: 0,
-        helpedReps: {
-          haveHelped: false,
-          reps: 0,
-        },
-        useSomeEquipment: {
-          listOfEquipment: [],
-          use: false,
-        },
-        typeOfSerie: '',
-        newExercise: true,
-      });
-    }
-  }
+    navigate,
+    idOfMusclesGroups,
+    addNewExerciseContainer,
+    addExerciseContainer,
+    dataMusclesGroups,
+    findTheExerciseOnList,
+    handleAddNewExercise,
+    listOfNewExercises,
+    selectedMuscleGroup,
+    setSelectedMuscleGroup,
+    addTheNewOnesExercisesForEditingInfos,
+    tableInfos,
+    setOpenModalInfos,
+    addNewSet,
+    handleUpdateInfosOfSeries,
+    handleChangeAddNewSetToFalse,
+    handleChangeAddNewToTrue,
+    openModalInfos,
+  } = useEditSessionInfos({route});
 
   return (
     <S.Container>
-      <Button
-        onPress={() => navigate.navigate('home')}
-        title="HOME
-        "
-      />
+      <S.Header>
+        <View>
+          <S.ButtonHeader onPress={() => navigate.navigate('home')}>
+            <S.TextButton>Home</S.TextButton>
+          </S.ButtonHeader>
+        </View>
+        <View>
+          <S.ButtonHeader onPress={() => navigate.navigate('home')}>
+            <S.TextButton>Encerrar Sessao</S.TextButton>
+          </S.ButtonHeader>
+        </View>
+      </S.Header>
       <S.TopBarInfos>
-        <Text>Data: {new Date().toLocaleDateString()}</Text>
-        <Text>tempo: {new Date().toLocaleDateString()}</Text>
-        <Text>Series Totais: 47</Text>
-        <Text>
+        <Text style={styles.textWhiteText}>Series Totais: 47</Text>
+        <Text style={styles.textWhiteText}>
           grupos musculares totais:{' '}
           {typeof idOfMusclesGroups === 'string'
             ? '1'
@@ -308,11 +62,11 @@ export default function EditSessionInfos({route}: Props) {
         </Text>
       </S.TopBarInfos>
       <ButtonApp
-        text="Encerrar sessao de treino"
-        onPress={() => addNewExerciseContainer()}
-      />
-      <ButtonApp
-        text="Adicionar um exercicio"
+        text={
+          addExerciseContainer
+            ? 'Não adicionar um exercicio'
+            : 'Adicionar um exercicio'
+        }
         onPress={() => addNewExerciseContainer()}
       />
 
@@ -328,19 +82,13 @@ export default function EditSessionInfos({route}: Props) {
             setSelectedMuscleGroup={setSelectedMuscleGroup}
           />
           {listOfNewExercises.length > 0 && (
-            <View
-              style={{
-                zIndex: 99,
-                position: 'absolute',
-                bottom: 20,
-                alignSelf: 'center',
-              }}>
+            <S.ViewAddExercises>
               <ButtonApp
                 onPress={() => addTheNewOnesExercisesForEditingInfos()}
                 text={`Adicionar ${listOfNewExercises.length} exercicios`}
                 style={{width: 300}}
               />
-            </View>
+            </S.ViewAddExercises>
           )}
         </>
       ) : (
@@ -350,19 +98,24 @@ export default function EditSessionInfos({route}: Props) {
             renderItem={({item}) => (
               <S.WrapperInfoExercise key={Math.random()}>
                 <S.NameImageOfExercise>
-                  <Image
-                    source={require('../../../img/image.png')}
-                    style={{width: 70, height: 70}}
-                  />
-                  <Text style={{color: '#fff'}}>{item.name}</Text>
+                  <S.Image source={require('../../../img/image.png')} />
+                  <View>
+                    <Text style={[styles.textWhiteText, {fontSize: 18}]}>
+                      {item.name}
+                    </Text>
+                    <Text style={styles.textWhiteText}>
+                      Observações sobre o treino...
+                    </Text>
+                  </View>
                 </S.NameImageOfExercise>
-                <Text style={{color: '#fff'}}>
-                  Observações sobre o treino...
-                </Text>
 
-                <View style={stylesTable.container}>
-                  <Table borderStyle={{borderWidth: 2, borderColor: '#c8e1ff'}}>
-                    <Row data={tableInfos.tableHead} style={stylesTable.head} />
+                <View style={styles.container}>
+                  <Table borderStyle={styles.borderStyle}>
+                    <Row
+                      data={tableInfos.tableHead}
+                      style={styles.head}
+                      textStyle={styles.rowStyle}
+                    />
                     {item.series.map(
                       ({
                         reps,
@@ -379,8 +132,7 @@ export default function EditSessionInfos({route}: Props) {
                               reps,
                               weight,
                               typeOfSerie,
-                              <Button
-                                title="+ Infos"
+                              <S.ButtonMoreInfos
                                 onPress={() =>
                                   setOpenModalInfos({
                                     openModal: true,
@@ -389,11 +141,15 @@ export default function EditSessionInfos({route}: Props) {
                                     useSomeEquipment,
                                     rateSerie,
                                   })
-                                }
-                              />,
+                                }>
+                                <Text style={styles.textWhiteText}>
+                                  + Infos
+                                </Text>
+                              </S.ButtonMoreInfos>,
                             ],
                           ]}
-                          style={{backgroundColor: '#fff'}}
+                          style={styles.rowsStyle}
+                          textStyle={{textAlign: 'center'}}
                           key={Math.random()}
                         />
                       ),
@@ -409,6 +165,7 @@ export default function EditSessionInfos({route}: Props) {
                   )}
                   {!addNewSet?.add ? (
                     <ButtonApp
+                      style={{backgroundColor: '#3772ffff'}}
                       text="Add set"
                       onPress={() => handleChangeAddNewToTrue(item.id)}
                     />
@@ -445,26 +202,64 @@ export default function EditSessionInfos({route}: Props) {
         onConfirm={() => {}}
         confirmLabel=""
         danger={false}>
-        <Text>Como a serie foi: {openModalInfos.rateSerie}</Text>
-        <Text>
-          Quantas repetições forçadas/ajudadas teve:{' '}
-          {openModalInfos.helpedReps.reps}
-        </Text>
-        <Text>
-          Quantas repetições parciais teve: {openModalInfos.partials.reps}
-        </Text>
-        <Text>
-          Quais equipamentos foram usados:{' '}
-          {openModalInfos.useSomeEquipment.listOfEquipment.map(
+        <TwoTextApp
+          colorFirstText={'#000'}
+          fontSizeFirstText={20}
+          textFirstText="Como a serie foi:"
+          colorSecondText={'#000'}
+          fontSizeSecondText={18}
+          textSecondText={openModalInfos.rateSerie}
+        />
+        <TwoTextApp
+          colorFirstText={'#000'}
+          fontSizeFirstText={20}
+          textFirstText="Quantas repetições forçadas/ajudadas teve:"
+          colorSecondText={'#000'}
+          fontSizeSecondText={18}
+          textSecondText={openModalInfos.helpedReps?.reps}
+        />
+        <TwoTextApp
+          colorFirstText={'#000'}
+          fontSizeFirstText={20}
+          textFirstText="Quantas repetições parciais teve: "
+          colorSecondText={'#000'}
+          fontSizeSecondText={18}
+          textSecondText={openModalInfos.partials?.reps}
+        />
+        <TwoTextApp
+          colorFirstText={'#000'}
+          fontSizeFirstText={20}
+          textFirstText="Quais equipamentos foram usados:"
+          colorSecondText={'#000'}
+          fontSizeSecondText={18}
+          textSecondText={openModalInfos.useSomeEquipment.listOfEquipment.map(
             equipment => equipment,
           )}
-        </Text>
+        />
       </ModalApp>
     </S.Container>
   );
 }
 
-const stylesTable = StyleSheet.create({
+const styles = StyleSheet.create({
   container: {flex: 1},
-  head: {backgroundColor: '#f1f8ff'},
+  head: {
+    backgroundColor: '#6320eeff',
+  },
+  textWhiteText: {
+    color: '#fff',
+  },
+  borderStyle: {
+    borderWidth: 2,
+    borderColor: '#1f005d',
+  },
+  rowStyle: {
+    textAlign: 'center',
+    color: '#fff',
+    padding: 0,
+  },
+  rowsStyle: {
+    backgroundColor: '#cab9ed',
+    height: 25,
+  },
 });

@@ -1,7 +1,7 @@
 import styled from 'styled-components/native';
 
 export const Container = styled.View`
-  background: #6320ee;
+  background: #0d0a1e;
   flex: 1;
 `;
 
@@ -11,7 +11,7 @@ export const ContainerWrapper = styled.View`
   justify-content: center;
 `;
 
-export const ContaineTextInput = styled.View``;
+export const ContainerTextInput = styled.View``;
 
 export const MainText = styled.Text`
   font-size: 34px;
