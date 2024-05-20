@@ -5,6 +5,7 @@ export const Container = styled.View`
   padding: 20px;
   background: #fff;
   margin: 16px 0px;
+  flex: 1;
 `;
 
 export const Wrapper = styled.TouchableOpacity`

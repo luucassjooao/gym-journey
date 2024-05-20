@@ -23,7 +23,8 @@ export default function EditSessionInfos({route}: IProps) {
     addNewExerciseContainer,
     addExerciseContainer,
     dataMusclesGroups,
-    findTheExerciseOnList,
+    findTheExerciseOnListAlreadyAdded,
+    findTheExerciseOnListNewExercise,
     handleAddNewExercise,
     listOfNewExercises,
     selectedMuscleGroup,
@@ -36,6 +37,9 @@ export default function EditSessionInfos({route}: IProps) {
     handleChangeAddNewSetToFalse,
     handleChangeAddNewToTrue,
     openModalInfos,
+    howManyExercisesToAdd,
+    totalSeriesOfSession,
+    listOfExercisesAdded,
   } = useEditSessionInfos({route});
 
   return (
@@ -53,7 +57,9 @@ export default function EditSessionInfos({route}: IProps) {
         </View>
       </S.Header>
       <S.TopBarInfos>
-        <Text style={styles.textWhiteText}>Series Totais: 47</Text>
+        <Text style={styles.textWhiteText}>
+          Series Totais: {totalSeriesOfSession()}
+        </Text>
         <Text style={styles.textWhiteText}>
           grupos musculares totais:{' '}
           {typeof idOfMusclesGroups === 'string'
@@ -67,6 +73,7 @@ export default function EditSessionInfos({route}: IProps) {
             ? 'Não adicionar um exercicio'
             : 'Adicionar um exercicio'
         }
+        style={[addExerciseContainer && {backgroundColor: 'red'}]}
         onPress={() => addNewExerciseContainer()}
       />
 
@@ -75,9 +82,11 @@ export default function EditSessionInfos({route}: IProps) {
           <AddNewExercise
             key={Math.random()}
             exercises={dataMusclesGroups!}
-            findTheExerciseOnList={findTheExerciseOnList}
+            findTheExerciseOnListAlreadyAdded={
+              findTheExerciseOnListAlreadyAdded
+            }
+            findTheExerciseOnListNewExercise={findTheExerciseOnListNewExercise}
             handleAddNewExercise={handleAddNewExercise}
-            listOfNewExercises={listOfNewExercises}
             selectedMuscleGroup={selectedMuscleGroup}
             setSelectedMuscleGroup={setSelectedMuscleGroup}
           />
@@ -85,7 +94,7 @@ export default function EditSessionInfos({route}: IProps) {
             <S.ViewAddExercises>
               <ButtonApp
                 onPress={() => addTheNewOnesExercisesForEditingInfos()}
-                text={`Adicionar ${listOfNewExercises.length} exercicios`}
+                text={`Adicionar ${howManyExercisesToAdd()} exercicios`}
                 style={{width: 300}}
               />
             </S.ViewAddExercises>
@@ -94,7 +103,7 @@ export default function EditSessionInfos({route}: IProps) {
       ) : (
         <S.ContainerInfoExercise>
           <FlatList
-            data={listOfNewExercises}
+            data={listOfExercisesAdded}
             renderItem={({item}) => (
               <S.WrapperInfoExercise key={Math.random()}>
                 <S.NameImageOfExercise>
@@ -155,7 +164,7 @@ export default function EditSessionInfos({route}: IProps) {
                       ),
                     )}
                   </Table>
-                  {addNewSet?.add && (
+                  {addNewSet?.add && addNewSet?.id === item.id && (
                     <AddNewSets
                       handleUpdateInfosOfSeries={handleUpdateInfosOfSeries}
                       handleChangeAddNewSetToFalse={

@@ -6,12 +6,14 @@ import {IExerciseType} from '../../../../utils/types/Exercise';
 interface IProps {
   mainList: IReturnDataGetMusclesGroups[];
   handleAddNewExercise(exercise: IExerciseType): void;
-  findTheExerciseOnList(exerciseName: string): boolean;
+  findTheExerciseOnListAlreadyAdded(exerciseName: string): boolean;
+  findTheExerciseOnListNewExercise(exerciseName: string): boolean;
 }
 
 export function ListOfExercises({
-  findTheExerciseOnList,
+  findTheExerciseOnListAlreadyAdded,
   handleAddNewExercise,
+  findTheExerciseOnListNewExercise,
   mainList,
 }: IProps) {
   return (
@@ -25,7 +27,12 @@ export function ListOfExercises({
               key={exercise.id}
               item={exercise}
               handleAddNewExercise={handleAddNewExercise}
-              thisExerciseIsSelected={findTheExerciseOnList(exercise.name)}
+              thisExerciseIsSelectedOnListAlreadyAdded={findTheExerciseOnListAlreadyAdded(
+                exercise.name,
+              )}
+              thisExerciseIsSelectedOnListNewExercise={findTheExerciseOnListNewExercise(
+                exercise.name,
+              )}
             />
           )}
           keyExtractor={exerciseItem => exerciseItem.id}

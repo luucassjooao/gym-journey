@@ -24,6 +24,9 @@ export function useEditSessionInfos({route}: IProps) {
   const [listOfNewExercises, setListOfNewExercises] = useState<
     IExerciseTypeProps[]
   >([]);
+  const [listOfExercisesAdded, setListOfExercisesAdded] = useState<
+    IExerciseTypeProps[]
+  >([]);
   const [selectedMuscleGroup, setSelectedMuscleGroup] =
     useState<IReturnDataGetMusclesGroups | null>();
 
@@ -98,20 +101,10 @@ export function useEditSessionInfos({route}: IProps) {
             const series = dataObject[key];
             let exerciseId: string;
             for (let keyName in series) {
-              console.log(series[keyName]);
               const mapTheSeries = (
                 series[keyName] as unknown as TSubmitSerieInfos[]
-              ).map(e => {
-                exerciseId = e.exerciseId;
-                const reps = e.reps;
-                const weight = e.weight;
-                const partials = e.partials;
-                const rateSerie = e.rateSerie;
-                const helpedReps = e.helpedReps;
-                const typeOfSerie = e.typeOfSerie;
-                const useSomeEquipment = e.useSomeEquipment;
-                return {
-                  exerciseId,
+              ).map(
+                ({
                   reps,
                   weight,
                   partials,
@@ -119,9 +112,22 @@ export function useEditSessionInfos({route}: IProps) {
                   helpedReps,
                   typeOfSerie,
                   useSomeEquipment,
-                };
-              });
-              setListOfNewExercises(prevState => {
+                  exerciseId: EID,
+                }) => {
+                  exerciseId = EID;
+                  return {
+                    exerciseId,
+                    reps,
+                    weight,
+                    partials,
+                    rateSerie,
+                    helpedReps,
+                    typeOfSerie,
+                    useSomeEquipment,
+                  };
+                },
+              );
+              setListOfExercisesAdded(prevState => {
                 if (prevState.some(re => re.id === exerciseId)) {
                   return prevState;
                 }
@@ -166,13 +172,22 @@ export function useEditSessionInfos({route}: IProps) {
     });
   }
 
-  function findTheExerciseOnList(exerciseName: string): boolean {
+  function findTheExerciseOnListAlreadyAdded(exerciseName: string): boolean {
+    return listOfExercisesAdded.find(exercise => exercise.name === exerciseName)
+      ? true
+      : false;
+  }
+  function findTheExerciseOnListNewExercise(exerciseName: string): boolean {
     return listOfNewExercises.find(exercise => exercise.name === exerciseName)
       ? true
       : false;
   }
 
   function addTheNewOnesExercisesForEditingInfos() {
+    setListOfExercisesAdded(prevState => {
+      return prevState.concat(listOfNewExercises);
+    });
+    setListOfNewExercises([]);
     setAddExerciseContainer(false);
   }
 
@@ -297,13 +312,29 @@ export function useEditSessionInfos({route}: IProps) {
     }
   }
 
+  function howManyExercisesToAdd() {
+    const exercisesAlreadyAdded = listOfNewExercises.filter(
+      e => e.series.length < 1,
+    );
+    return exercisesAlreadyAdded.length;
+  }
+
+  function totalSeriesOfSession() {
+    let totalSeries = 0;
+    for (const exercise of listOfNewExercises) {
+      totalSeries += exercise.series.length;
+    }
+    return totalSeries;
+  }
+
   return {
     navigate,
     idOfMusclesGroups,
     addNewExerciseContainer,
     addExerciseContainer,
     dataMusclesGroups,
-    findTheExerciseOnList,
+    findTheExerciseOnListAlreadyAdded,
+    findTheExerciseOnListNewExercise,
     handleAddNewExercise,
     listOfNewExercises,
     selectedMuscleGroup,
@@ -316,5 +347,8 @@ export function useEditSessionInfos({route}: IProps) {
     handleChangeAddNewSetToFalse,
     handleChangeAddNewToTrue,
     openModalInfos,
+    howManyExercisesToAdd,
+    totalSeriesOfSession,
+    listOfExercisesAdded,
   };
 }

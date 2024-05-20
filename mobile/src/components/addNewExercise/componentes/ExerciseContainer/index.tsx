@@ -1,25 +1,33 @@
-import {Text} from 'react-native';
 import * as S from './styles';
 import {IExerciseType} from '../../../../utils/types/Exercise';
 
 interface IProps {
   item: IExerciseType;
   handleAddNewExercise: (item: IExerciseType) => void;
-  thisExerciseIsSelected: boolean;
+  thisExerciseIsSelectedOnListAlreadyAdded: boolean;
+  thisExerciseIsSelectedOnListNewExercise: boolean;
 }
 
 export default function ExerciseContainer({
   item,
   handleAddNewExercise,
-  thisExerciseIsSelected,
+  thisExerciseIsSelectedOnListAlreadyAdded,
+  thisExerciseIsSelectedOnListNewExercise,
 }: IProps) {
+  function verifyIfExerciseAlreadyAddedOnMainList() {
+    return thisExerciseIsSelectedOnListAlreadyAdded
+      ? null
+      : handleAddNewExercise(item);
+  }
+
   return (
     <S.Wrapper
-      onPress={() => handleAddNewExercise(item)}
-      selected={thisExerciseIsSelected}
+      onPress={() => verifyIfExerciseAlreadyAddedOnMainList()}
+      selecteAlreadyAdded={thisExerciseIsSelectedOnListAlreadyAdded}
+      selectedNewExercise={thisExerciseIsSelectedOnListNewExercise}
       activeOpacity={1}>
       <S.Image source={require('../../../../../img/image.png')} />
-      <Text>{item.name}</Text>
+      <S.Text>{item.name}</S.Text>
     </S.Wrapper>
   );
 }

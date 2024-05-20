@@ -26,9 +26,9 @@ const renderComponent = (condition: boolean, component: ReactNode) => {
 
 interface IProps {
   exercises: IReturnDataGetMusclesGroups[];
-  listOfNewExercises: IExerciseType[];
   handleAddNewExercise(exercise: IExerciseType): void;
-  findTheExerciseOnList(exerciseName: string): boolean;
+  findTheExerciseOnListAlreadyAdded(exerciseName: string): boolean;
+  findTheExerciseOnListNewExercise(exerciseName: string): boolean;
   selectedMuscleGroup: IReturnDataGetMusclesGroups | null | undefined;
   setSelectedMuscleGroup: (
     value: SetStateAction<IReturnDataGetMusclesGroups | null | undefined>,
@@ -38,7 +38,8 @@ interface IProps {
 export default function AddNewExercise({
   exercises,
   handleAddNewExercise,
-  findTheExerciseOnList,
+  findTheExerciseOnListAlreadyAdded,
+  findTheExerciseOnListNewExercise,
   selectedMuscleGroup,
   setSelectedMuscleGroup,
 }: IProps) {
@@ -127,14 +128,16 @@ export default function AddNewExercise({
       <ListOfExercises
         mainList={exercises}
         handleAddNewExercise={handleAddNewExercise}
-        findTheExerciseOnList={findTheExerciseOnList}
+        findTheExerciseOnListAlreadyAdded={findTheExerciseOnListAlreadyAdded}
+        findTheExerciseOnListNewExercise={findTheExerciseOnListNewExercise}
       />
     ),
     searchExercise: (
       <ListOfExercises
         mainList={filteredExercises}
         handleAddNewExercise={handleAddNewExercise}
-        findTheExerciseOnList={findTheExerciseOnList}
+        findTheExerciseOnListAlreadyAdded={findTheExerciseOnListAlreadyAdded}
+        findTheExerciseOnListNewExercise={findTheExerciseOnListNewExercise}
       />
     ),
     selectedMuscleGroup: (
@@ -145,7 +148,12 @@ export default function AddNewExercise({
             key={item.id}
             item={item}
             handleAddNewExercise={handleAddNewExercise}
-            thisExerciseIsSelected={findTheExerciseOnList(item.name)}
+            thisExerciseIsSelectedOnListAlreadyAdded={findTheExerciseOnListAlreadyAdded(
+              item.name,
+            )}
+            thisExerciseIsSelectedOnListNewExercise={findTheExerciseOnListNewExercise(
+              item.name,
+            )}
           />
         )}
         keyExtractor={item => item.id}
