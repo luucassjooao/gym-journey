@@ -68,6 +68,7 @@ export function useEditSessionInfos({route}: IProps) {
     },
     rateSerie: '',
   });
+  const [loadingDataSessions, setLoadingDataSession] = useState<boolean>(true);
 
   const navigate = useNavigation<PrivateRouteNavitationProp>();
 
@@ -77,7 +78,7 @@ export function useEditSessionInfos({route}: IProps) {
       : (idOfMusclesGroups as string[]).join(',');
   const {
     '0': {data: dataMusclesGroups},
-    '1': {data: dataSessionAlreadyExist},
+    '1': {data: dataSessionAlreadyExist, isFetched, isLoading},
   } = useQueries({
     queries: [
       {
@@ -95,56 +96,26 @@ export function useEditSessionInfos({route}: IProps) {
 
   useEffect(() => {
     if (dataSessionAlreadyExist) {
+      setLoadingDataSession(true);
       for (const dataObject of dataSessionAlreadyExist.seriesinformation) {
         for (const key in dataObject) {
           if (Object.hasOwnProperty.call(dataObject, key)) {
             const series = dataObject[key];
-            let exerciseId: string;
-            for (let keyName in series) {
-              const mapTheSeries = (
-                series[keyName] as unknown as TSubmitSerieInfos[]
-              ).map(
-                ({
-                  reps,
-                  weight,
-                  partials,
-                  rateSerie,
-                  helpedReps,
-                  typeOfSerie,
-                  useSomeEquipment,
-                  exerciseId: EID,
-                }) => {
-                  exerciseId = EID;
-                  return {
-                    exerciseId,
-                    reps,
-                    weight,
-                    partials,
-                    rateSerie,
-                    helpedReps,
-                    typeOfSerie,
-                    useSomeEquipment,
-                  };
-                },
-              );
-              setListOfExercisesAdded(prevState => {
-                if (prevState.some(re => re.id === exerciseId)) {
-                  return prevState;
-                }
-                const newExercise = {
-                  id: exerciseId,
-                  media: '',
-                  musclesGroupsId: idsOfMusclesGroups,
-                  name: keyName,
-                  series: mapTheSeries,
-                };
-                return [...prevState, newExercise];
-              });
-            }
+            setListOfExercisesAdded(prevState => {
+              const pushExercise: IExerciseTypeProps = {
+                id: series[0].exerciseId,
+                media: '',
+                musclesGroupsId: idsOfMusclesGroups,
+                name: key,
+                series: series,
+              };
+              return [...prevState, pushExercise];
+            });
           }
         }
       }
     }
+    setLoadingDataSession(false);
   }, [dataSessionAlreadyExist, idsOfMusclesGroups]);
 
   function addNewExerciseContainer() {
@@ -192,31 +163,35 @@ export function useEditSessionInfos({route}: IProps) {
   }
 
   function handleChangeAddNewToTrue(id: string) {
-    const hasSeriesInAnyExercise = listOfNewExercises.some(
-      exercise => exercise.series.length > 0,
+    const hasSeriesInAnyExercise = listOfExercisesAdded.find(
+      exercise => id === exercise.id,
     );
+    if (hasSeriesInAnyExercise) {
+      const verifyIfAlreadyExistsSeriesOnExercise =
+        hasSeriesInAnyExercise.series.length > 0 ? false : true;
+      setAddNewInfosOnExercise({
+        exerciseId: id,
+        newExercise: verifyIfAlreadyExistsSeriesOnExercise,
+        reps: 0,
+        partials: {
+          havePartials: false,
+          reps: 0,
+        },
+        rateSerie: '',
+        weight: 0,
+        helpedReps: {
+          haveHelped: false,
+          reps: 0,
+        },
+        useSomeEquipment: {
+          listOfEquipment: [],
+          use: false,
+        },
+        typeOfSerie: '',
+      });
+    }
 
     setAddNewSet({id, add: true});
-    setAddNewInfosOnExercise({
-      exerciseId: id,
-      newExercise: !hasSeriesInAnyExercise,
-      reps: 0,
-      partials: {
-        havePartials: false,
-        reps: 0,
-      },
-      rateSerie: '',
-      weight: 0,
-      helpedReps: {
-        haveHelped: false,
-        reps: 0,
-      },
-      useSomeEquipment: {
-        listOfEquipment: [],
-        use: false,
-      },
-      typeOfSerie: '',
-    });
   }
 
   function handleChangeAddNewSetToFalse() {
@@ -254,7 +229,7 @@ export function useEditSessionInfos({route}: IProps) {
         },
       });
 
-      setListOfNewExercises(prevState => {
+      setListOfExercisesAdded(prevState => {
         const updatedList = prevState.map(exercise => {
           if (exercise.id === addNewInfosOnExercise.exerciseId) {
             return {
@@ -283,7 +258,7 @@ export function useEditSessionInfos({route}: IProps) {
     } catch {
       Toast.show({
         type: 'error',
-        text1: 'Ouve algum erro ao voce tentar fazer o login!',
+        text1: 'Ouve algum erro ao registrar esse serie!',
         text2: 'Tente novamente!',
         position: 'bottom',
       });
@@ -327,6 +302,8 @@ export function useEditSessionInfos({route}: IProps) {
     return totalSeries;
   }
 
+  const loadingData = loadingDataSessions || isFetched || isLoading;
+
   return {
     navigate,
     idOfMusclesGroups,
@@ -350,5 +327,6 @@ export function useEditSessionInfos({route}: IProps) {
     howManyExercisesToAdd,
     totalSeriesOfSession,
     listOfExercisesAdded,
+    loadingData,
   };
 }

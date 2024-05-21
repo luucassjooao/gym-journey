@@ -10,6 +10,7 @@ import Toast from 'react-native-toast-message';
 import ModalApp from '../../components/Modal';
 import {useEditSessionInfos} from './useEditSessionInfos';
 import TwoTextApp from '../../components/TwoText';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 type RouteProps = RouteProp<PrivateRoutesParamList, 'editSessionInfos'>;
 export interface IProps {
@@ -40,21 +41,15 @@ export default function EditSessionInfos({route}: IProps) {
     howManyExercisesToAdd,
     totalSeriesOfSession,
     listOfExercisesAdded,
+    loadingData,
   } = useEditSessionInfos({route});
 
   return (
     <S.Container>
       <S.Header>
-        <View>
-          <S.ButtonHeader onPress={() => navigate.navigate('home')}>
-            <S.TextButton>Home</S.TextButton>
-          </S.ButtonHeader>
-        </View>
-        <View>
-          <S.ButtonHeader onPress={() => navigate.navigate('home')}>
-            <S.TextButton>Encerrar Sessao</S.TextButton>
-          </S.ButtonHeader>
-        </View>
+        <S.ButtonHeader onPress={() => navigate.navigate('home')}>
+          <S.TextButton>Home</S.TextButton>
+        </S.ButtonHeader>
       </S.Header>
       <S.TopBarInfos>
         <Text style={styles.textWhiteText}>
@@ -246,6 +241,8 @@ export default function EditSessionInfos({route}: IProps) {
           )}
         />
       </ModalApp>
+
+      <Spinner visible={!loadingData} />
     </S.Container>
   );
 }

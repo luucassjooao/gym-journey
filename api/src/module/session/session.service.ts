@@ -144,8 +144,9 @@ export class SessionsService {
 
     for (const dataObject of findSessionById.seriesinformation) {
       for (const key in dataObject as any) {
-        if (key !== findExerciseIdInSeriesInformation.name)
+        if (key !== findExerciseIdInSeriesInformation.name) {
           pushOthersExercise.push(dataObject);
+        }
         if (Object.hasOwnProperty.call(dataObject, key)) {
           for (const exerciseObj of dataObject[key]) {
             const name = key;
