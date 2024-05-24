@@ -6,6 +6,14 @@ import { SessionRepository } from 'src/shared/database/repositories/session.repo
 import { ExerciseRepository } from 'src/shared/database/repositories/exercise.repositories';
 import { SeriesInformationType } from './entities/Session';
 
+interface NewSeriesInformationType {
+  exerciseName: string;
+  exerciseId: string;
+  observation?: string;
+  series: SeriesInformationType[];
+  newExercise?: boolean;
+}
+
 @Injectable()
 export class SessionsService {
   constructor(
@@ -119,53 +127,44 @@ export class SessionsService {
     };
 
     const { exerciseId, newExercise, series } =
-      seriesInformation as unknown as SeriesInformationType;
+      seriesInformation as unknown as NewSeriesInformationType;
 
     if (newExercise) {
       return this.sessionRepo.update({
-        where: {
-          id,
-        },
+        where: { id },
         data: {
           seriesinformation: {
             push: {
-              [findExerciseIdInSeriesInformation.name]: [
-                { ...series, exerciseId },
-              ],
+              exerciseName: findExerciseIdInSeriesInformation.name,
+              exerciseId,
+              observation: '',
+              series: [series],
             },
           },
-          duration: newEndSessionHour,
         },
       });
     }
 
-    const pushOthersExercise = [];
-    let updateSerieInformation = {};
-
-    for (const dataObject of findSessionById.seriesinformation) {
-      for (const key in dataObject as any) {
-        if (key !== findExerciseIdInSeriesInformation.name) {
-          pushOthersExercise.push(dataObject);
+    const updatedSeriesInformation = findSessionById.seriesinformation.map(
+      (dataObject) => {
+        const data = dataObject as unknown as NewSeriesInformationType;
+        const serieList = Array.isArray(data.series) ? data.series : [];
+        if ((dataObject as SeriesInformationType).exerciseId === exerciseId) {
+          return {
+            ...data,
+            series: [...serieList, series],
+          };
         }
-        if (Object.hasOwnProperty.call(dataObject, key)) {
-          for (const exerciseObj of dataObject[key]) {
-            const name = key;
-            if (exerciseId === exerciseObj.exerciseId) {
-              updateSerieInformation = {
-                [name]: [exerciseObj, series],
-              };
-            }
-          }
-        }
-      }
-    }
+        return dataObject;
+      },
+    );
 
     return this.sessionRepo.update({
       where: {
         id,
       },
       data: {
-        seriesinformation: [pushOthersExercise, updateSerieInformation],
+        seriesinformation: updatedSeriesInformation,
         duration: newEndSessionHour,
       },
     });

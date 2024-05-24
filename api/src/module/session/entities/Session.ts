@@ -13,7 +13,6 @@ export type SeriesInformationType = {
   exerciseId: string;
   newExercise?: boolean;
   series: {
-    exerciseId: string;
     typeOfSerie: string;
     reps: number;
     weight: number;
