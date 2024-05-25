@@ -3,7 +3,7 @@ import * as S from './styles';
 import ButtonApp from '../Button';
 
 interface IModal {
-  danger: boolean;
+  danger?: boolean;
   visible: boolean;
   title: string;
   isLoading?: boolean;
@@ -15,7 +15,7 @@ interface IModal {
 }
 
 export default function ModalApp({
-  danger,
+  danger = false,
   visible,
   title,
   isLoading,
@@ -29,7 +29,7 @@ export default function ModalApp({
     <Modal visible={visible} animationType="fade" transparent={true}>
       <S.Overlay>
         <S.Container>
-          <S.Title>{title}</S.Title>
+          <S.Title danger={danger}>{title}</S.Title>
 
           <S.ModalBody>{children}</S.ModalBody>
 
@@ -39,9 +39,10 @@ export default function ModalApp({
               disabled={isLoading}
               text={cancelLabel}
               style={{
-                paddingHorizontal: 12,
-                width: 140,
-                marginRight: 8,
+                paddingHorizontal: 8,
+                width: 120,
+                marginRight: 4,
+                marginLeft: 4,
                 backgroundColor: '#f00',
               }}
             />
@@ -52,8 +53,10 @@ export default function ModalApp({
                 disabled={isLoading}
                 text={confirmLabel}
                 style={{
-                  paddingHorizontal: 12,
-                  width: 140,
+                  paddingHorizontal: 8,
+                  width: 120,
+                  marginRight: 4,
+                  marginLeft: 4,
                 }}
               />
             )}

@@ -3,6 +3,7 @@ export interface IExerciseType {
   musclesGroupsId: string;
   name: string;
   media: string;
+  observation: string;
 }
 
 export interface IPartials {
@@ -45,12 +46,3 @@ export interface IOpenModalInfos {
   rateSerie: string;
   openModal: boolean;
 }
-// export interface ISubmitSerieInfos {
-//   weight: number;
-//   reps: number;
-//   partials: IPartials;
-//   helpedReps: IHelpedReps;
-//   useSomeEquipment: IUseSomeEquipment;
-//   rateSerie: string;
-//   typeOfSerie: string;
-// }

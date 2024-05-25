@@ -15,7 +15,7 @@ const Auth = createStackNavigator<AuthRootParamList>();
 export default function AuthRoutes() {
   return (
     <Auth.Navigator
-      screenOptions={{headerShown: false}}
+      screenOptions={{headerShown: false, animationEnabled: true}}
       initialRouteName="signin">
       <Auth.Screen name="signin" component={Signin} />
       <Auth.Screen name="signup" component={Signup} />

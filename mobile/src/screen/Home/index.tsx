@@ -28,14 +28,14 @@ export default function Home() {
 
   return (
     <S.Container>
-      <S.Text onPress={() => logout()}>EXIT</S.Text>
+      <S.Text onPress={() => logout()}>SAIR</S.Text>
       <ButtonApp
-        text="Criar uma nova sessao"
+        text="Criar uma nova sessão"
         onPress={() => switchModalVisible()}
       />
 
       <S.PreviousSessions>
-        <S.Text>Suas ultimas sessoes</S.Text>
+        <S.Text>Suas últimas sessões de treino</S.Text>
 
         <S.ViewFlatList>
           <FlatList
@@ -45,6 +45,7 @@ export default function Home() {
                 key={item.id}
                 onPress={() =>
                   navigation.navigate('editSessionInfos', {
+                    nameOfMusclesGroups: item.targetedMuscles.map(i => i.name),
                     idOfMusclesGroups: item.targetedMuscles.map(i => i.id),
                     sessionId: item.id,
                   })

@@ -42,6 +42,8 @@ export default function EditSessionInfos({route}: IProps) {
     totalSeriesOfSession,
     listOfExercisesAdded,
     loadingData,
+    splitNamesInMuscleGroups,
+    isLoadingUpdateSession,
   } = useEditSessionInfos({route});
 
   return (
@@ -52,15 +54,18 @@ export default function EditSessionInfos({route}: IProps) {
         </S.ButtonHeader>
       </S.Header>
       <S.TopBarInfos>
-        <Text style={styles.textWhiteText}>
-          Series Totais: {totalSeriesOfSession()}
-        </Text>
-        <Text style={styles.textWhiteText}>
-          grupos musculares totais:{' '}
-          {typeof idOfMusclesGroups === 'string'
-            ? '1'
-            : idOfMusclesGroups.length}
-        </Text>
+        <View style={{marginLeft: 8}}>
+          <Text style={styles.textWhiteText}>
+            Series Totais: {totalSeriesOfSession()}
+          </Text>
+          <Text style={styles.textWhiteText}>
+            Grupos musculares:{' '}
+            {typeof idOfMusclesGroups === 'string'
+              ? '1'
+              : idOfMusclesGroups.length}
+            {` - ${splitNamesInMuscleGroups}`}
+          </Text>
+        </View>
       </S.TopBarInfos>
       <ButtonApp
         text={
@@ -107,9 +112,6 @@ export default function EditSessionInfos({route}: IProps) {
                     <Text style={[styles.textWhiteText, {fontSize: 18}]}>
                       {item.name}
                     </Text>
-                    <Text style={styles.textWhiteText}>
-                      Observações sobre o treino...
-                    </Text>
                   </View>
                 </S.NameImageOfExercise>
 
@@ -153,7 +155,7 @@ export default function EditSessionInfos({route}: IProps) {
                             ],
                           ]}
                           style={styles.rowsStyle}
-                          textStyle={{textAlign: 'center'}}
+                          textStyle={{textAlign: 'center', color: '#000'}}
                           key={Math.random()}
                         />
                       ),
@@ -177,6 +179,7 @@ export default function EditSessionInfos({route}: IProps) {
                 </View>
               </S.WrapperInfoExercise>
             )}
+            keyExtractor={item => item.id}
           />
         </S.ContainerInfoExercise>
       )}
@@ -236,13 +239,13 @@ export default function EditSessionInfos({route}: IProps) {
           textFirstText="Quais equipamentos foram usados:"
           colorSecondText={'#000'}
           fontSizeSecondText={18}
-          textSecondText={openModalInfos.useSomeEquipment.listOfEquipment.map(
-            equipment => equipment,
-          )}
+          textSecondText={openModalInfos.useSomeEquipment.listOfEquipment
+            .map(equipment => equipment)
+            .join(' & ')}
         />
       </ModalApp>
 
-      <Spinner visible={!loadingData} />
+      <Spinner visible={loadingData || isLoadingUpdateSession} />
     </S.Container>
   );
 }

@@ -17,9 +17,9 @@ export const Container = styled.View`
   align-items: center;
 `;
 
-export const Title = styled.Text`
+export const Title = styled.Text<{danger: boolean}>`
   font-size: 32px;
-  color: #000;
+  color: ${({danger}) => (danger ? 'red' : '#000')};
 `;
 
 export const ModalBody = styled.View`

@@ -26,8 +26,9 @@ export const WrapperInfoExercise = styled.View`
 
 export const NameImageOfExercise = styled.View`
   flex-direction: row;
-  gap: 16px;
+  gap: 10px;
   margin-bottom: 10px;
+  max-width: 300px;
 `;
 
 export const Header = styled.View`

@@ -32,7 +32,7 @@ export const TextDetail = styled.Text`
 `;
 
 export const Text = styled.Text`
-  font-size: 30px;
+  font-size: 24px;
   color: #fff;
   text-align: center;
 `;

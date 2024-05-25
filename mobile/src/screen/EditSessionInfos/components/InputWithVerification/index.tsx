@@ -1,4 +1,5 @@
 import {
+  KeyboardType,
   NativeSyntheticEvent,
   Text,
   TextInput,
@@ -18,6 +19,7 @@ interface IProps {
   isArray?: boolean;
   listOfArray?: string[];
   titleForDropdown?: string;
+  keyboardType?: KeyboardType;
 }
 
 export default function InputWithVerification({
@@ -29,12 +31,13 @@ export default function InputWithVerification({
   isArray,
   listOfArray,
   titleForDropdown,
+  keyboardType,
 }: IProps) {
   return (
     <View>
       {verification ? (
         <>
-          <Text>{description}</Text>
+          <Text style={{color: '#000'}}>{description}</Text>
           {isArray ? (
             <DropdownApp
               buttonAfterSelectMessage={(valueState as string[])
@@ -46,12 +49,14 @@ export default function InputWithVerification({
             />
           ) : (
             <TextInput
+              placeholderTextColor={'#000'}
               placeholder={placeholder}
               value={
                 typeof valueState === 'string' ? valueState : String(valueState)
               }
               onChange={handleChangeValue}
-              style={{backgroundColor: '#c0c0c0'}}
+              style={{backgroundColor: '#c0c0c0', color: '#000'}}
+              keyboardType={keyboardType}
             />
           )}
         </>

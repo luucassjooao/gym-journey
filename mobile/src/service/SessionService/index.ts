@@ -8,7 +8,7 @@ interface IPropsCreateNewSession {
   musclesGroupId: string[];
 }
 
-interface IPropsUpdateSeriesInformation {
+export interface IPropsUpdateSeriesInformation {
   idOfSession: string;
   seriesInformation: {
     newExercise: boolean;

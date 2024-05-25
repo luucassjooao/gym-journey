@@ -6,7 +6,6 @@ import {
   TextInputChangeEventData,
 } from 'react-native';
 import ModalApp from '../../../../components/Modal';
-import {Text} from 'react-native';
 import OptionsApp from '../../../../components/Options';
 import InputWithVerification from '../InputWithVerification';
 import ButtonApp from '../../../../components/Button';
@@ -189,19 +188,22 @@ export default function AddNewSets({
                 placeholder={'? Reps'}
                 value={String(reps) === '0' ? '' : String(reps)}
                 onChange={handleChangeReps}
+                keyboardType="numeric"
               />,
               <S.TextInput
                 placeholder={'? Peso'}
                 value={String(weight) === '0' ? '' : String(weight)}
                 onChange={handleChangeWeight}
+                keyboardType="numeric"
               />,
               <S.TextInput
-                placeholder={'? Qual o tipo desta serie'}
+                placeholder={'ex:Aquecimento'}
                 value={typeOfSerie}
                 onChange={handleChangeTypeOfSerie}
+                style={{fontSize: 12}}
               />,
               <S.ButtonMoreInfos onPress={() => setOpenModal(true)}>
-                <S.Text>+ Infos</S.Text>
+                <S.TextMoreInfos>+ Infos</S.TextMoreInfos>
               </S.ButtonMoreInfos>,
             ],
           ]}
@@ -223,10 +225,10 @@ export default function AddNewSets({
           confirmLabel="Confirmar"
           onCancel={cancelOnModal}
           onConfirm={() => setOpenModal(false)}
-          title="Quais informações a mais que voce quer registrar?"
+          title="Quais informações a mais que você quer registrar?"
           visible={openModal}
           danger={false}>
-          <Text>Teve repetições parciais?</Text>
+          <S.TextAskMoreInfos>Teve repetições parciais?</S.TextAskMoreInfos>
           <OptionsApp
             firstOption="Sim"
             secondOption="Não"
@@ -240,8 +242,11 @@ export default function AddNewSets({
             valueState={partials.reps}
             verification={partials.havePartials}
             handleChangeValue={handleChangePartials}
+            keyboardType="numeric"
           />
-          <Text>Teve repetições forçadas/ajudadas?</Text>
+          <S.TextAskMoreInfos>
+            Teve repetições forçadas/ajudadas?
+          </S.TextAskMoreInfos>
           <OptionsApp
             firstOption="Sim"
             secondOption="Não"
@@ -255,8 +260,11 @@ export default function AddNewSets({
             valueState={helpedReps.reps}
             verification={helpedReps.haveHelped}
             handleChangeValue={handleChangeHelpedReps}
+            keyboardType="numeric"
           />
-          <Text>Usou algum tipo de equipamento/ergogenio mecanico?</Text>
+          <S.TextAskMoreInfos>
+            Usou algum tipo de equipamento/ergogenio mecanico?
+          </S.TextAskMoreInfos>
           <OptionsApp
             firstOption="Sim"
             secondOption="Não"
@@ -266,7 +274,7 @@ export default function AddNewSets({
             handleChangeValue={handleChangeUseSomeEquipment}
           />
           <InputWithVerification
-            description="Quais equipamentos voce utilizou?"
+            description="Quais equipamentos você utilizou?"
             valueState={useSomeEquipment.listOfEquipment}
             verification={useSomeEquipment.use}
             handleChangeValue={handleChangeUseSomethingList}
@@ -275,7 +283,8 @@ export default function AddNewSets({
             titleForDropdown="Selecione os equipamentos"
           />
           <InputWithVerification
-            description="Como voce rankea está serie?"
+            placeholder="ex: Boa/ruim porque ..."
+            description="Como você classificar está serie?"
             valueState={rateSerie}
             verification={true}
             handleChangeValue={handleChangeRateSerie}

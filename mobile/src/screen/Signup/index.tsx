@@ -20,7 +20,7 @@ export function Signup() {
     } catch {
       Toast.show({
         type: 'error',
-        text1: 'Ouve algum erro ao voce tentar fazer o seu cadastro!',
+        text1: 'Ouve algum erro ao você tentar fazer o seu cadastro!',
         text2: 'Tente novamente!',
         position: 'bottom',
       });
@@ -32,6 +32,7 @@ export function Signup() {
   return (
     <AuthForm
       type="signup"
+      name={name}
       email={email}
       password={password}
       isSubmitting={isSubmitting}

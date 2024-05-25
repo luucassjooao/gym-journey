@@ -15,7 +15,11 @@ export const ButtonMoreInfos = styled.TouchableOpacity`
   justify-content: center;
 `;
 
-export const Text = styled.Text`
+export const TextMoreInfos = styled.Text`
   color: #fff;
   text-align: center;
+`;
+
+export const TextAskMoreInfos = styled.Text`
+  color: #000;
 `;

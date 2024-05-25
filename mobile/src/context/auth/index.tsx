@@ -82,7 +82,7 @@ export function AuthProvider({children}: IAuthProvider) {
       console.error('Error signing in:', error);
       Toast.show({
         type: 'error',
-        text1: 'Ouve algum erro ao voce tentar fazer o login!',
+        text1: 'Ouve algum erro ao você tentar fazer o login!',
         text2: 'Tente novamente!',
         position: 'bottom',
       });
@@ -104,7 +104,7 @@ export function AuthProvider({children}: IAuthProvider) {
       console.error('Error signing up:', error);
       Toast.show({
         type: 'error',
-        text1: 'Ouve algum erro ao voce tentar fazer o seu cadastro!',
+        text1: 'Ouve algum erro ao você tentar fazer o seu cadastro!',
         text2: 'Tente novamente!',
         position: 'bottom',
       });

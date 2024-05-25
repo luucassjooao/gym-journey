@@ -11,14 +11,17 @@ import {
 } from '../../utils/types/Exercise';
 import {PrivateRouteNavitationProp} from '../../routes/private';
 import {useNavigation} from '@react-navigation/native';
-import {useQueries} from '@tanstack/react-query';
+import {useMutation, useQueries} from '@tanstack/react-query';
 import {ISession} from '../../utils/types/Session';
-import SessionService from '../../service/SessionService';
+import SessionService, {
+  IPropsUpdateSeriesInformation,
+} from '../../service/SessionService';
 import Toast from 'react-native-toast-message';
 import {IProps} from '.';
+import {queryClient} from '../../../App';
 
 export function useEditSessionInfos({route}: IProps) {
-  const {sessionId, idOfMusclesGroups} = route.params;
+  const {sessionId, idOfMusclesGroups, nameOfMusclesGroups} = route.params;
   const [addExerciseContainer, setAddExerciseContainer] =
     useState<boolean>(false);
   const [listOfNewExercises, setListOfNewExercises] = useState<
@@ -69,6 +72,8 @@ export function useEditSessionInfos({route}: IProps) {
     rateSerie: '',
   });
   const [loadingDataSessions, setLoadingDataSession] = useState<boolean>(true);
+  const [isLoadingUpdateSession, setIsLoadingUpdateSession] =
+    useState<boolean>(false);
 
   const navigate = useNavigation<PrivateRouteNavitationProp>();
 
@@ -76,6 +81,24 @@ export function useEditSessionInfos({route}: IProps) {
     typeof idOfMusclesGroups === 'string'
       ? idOfMusclesGroups
       : (idOfMusclesGroups as string[]).join(',');
+
+  const updateSeriesInformation = async (
+    newSeriesInformation: IPropsUpdateSeriesInformation,
+  ) => {
+    return SessionService.updateSeriesInformation(newSeriesInformation);
+  };
+
+  const useUpdateSeriesInformation = () => {
+    return useMutation({
+      mutationFn: updateSeriesInformation,
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: [sessionId],
+        });
+      },
+    });
+  };
+  const {mutateAsync: updateSerie} = useUpdateSeriesInformation();
   const {
     '0': {data: dataMusclesGroups},
     '1': {data: dataSessionAlreadyExist, isFetched, isLoading},
@@ -90,6 +113,8 @@ export function useEditSessionInfos({route}: IProps) {
         queryKey: [sessionId],
         queryFn: async (): Promise<ISession> =>
           SessionService.getUniqueSession(sessionId),
+        refetchOnMount: true,
+        refetchOnWindowFocus: false,
       },
     ],
   });
@@ -97,26 +122,24 @@ export function useEditSessionInfos({route}: IProps) {
   useEffect(() => {
     if (dataSessionAlreadyExist) {
       setLoadingDataSession(true);
+      setListOfExercisesAdded([]);
       for (const dataObject of dataSessionAlreadyExist.seriesinformation) {
-        for (const key in dataObject) {
-          if (Object.hasOwnProperty.call(dataObject, key)) {
-            const series = dataObject[key];
-            setListOfExercisesAdded(prevState => {
-              const pushExercise: IExerciseTypeProps = {
-                id: series[0].exerciseId,
-                media: '',
-                musclesGroupsId: idsOfMusclesGroups,
-                name: key,
-                series: series,
-              };
-              return [...prevState, pushExercise];
-            });
-          }
-        }
+        const {exerciseId, exerciseName, observation, series} = dataObject;
+        setListOfExercisesAdded(prevState => {
+          const pushExercise: IExerciseTypeProps = {
+            id: exerciseId,
+            media: '',
+            musclesGroupsId: idsOfMusclesGroups,
+            name: exerciseName,
+            observation: observation as string,
+            series,
+          };
+          return [...prevState, pushExercise];
+        });
       }
     }
     setLoadingDataSession(false);
-  }, [dataSessionAlreadyExist, idsOfMusclesGroups]);
+  }, [dataSessionAlreadyExist, idOfMusclesGroups, idsOfMusclesGroups]);
 
   function addNewExerciseContainer() {
     setAddExerciseContainer(prevState => prevState !== true);
@@ -138,6 +161,7 @@ export function useEditSessionInfos({route}: IProps) {
         media: exercise.media,
         musclesGroupsId: exercise.musclesGroupsId,
         name: exercise.name,
+        observation: exercise.observation,
       };
       return [...prevState, exerciseObj];
     });
@@ -210,8 +234,9 @@ export function useEditSessionInfos({route}: IProps) {
     rateSerie,
     typeOfSerie,
   }: Omit<TSubmitSerieInfos, 'exerciseId'>) {
+    setIsLoadingUpdateSession(true);
     try {
-      await SessionService.updateSeriesInformation({
+      await updateSerie({
         idOfSession: sessionId,
         seriesInformation: {
           exerciseId: addNewInfosOnExercise.exerciseId,
@@ -285,6 +310,7 @@ export function useEditSessionInfos({route}: IProps) {
         newExercise: true,
       });
     }
+    setIsLoadingUpdateSession(false);
   }
 
   function howManyExercisesToAdd() {
@@ -296,17 +322,22 @@ export function useEditSessionInfos({route}: IProps) {
 
   function totalSeriesOfSession() {
     let totalSeries = 0;
-    for (const exercise of listOfNewExercises) {
+    for (const exercise of listOfExercisesAdded) {
       totalSeries += exercise.series.length;
     }
     return totalSeries;
   }
 
-  const loadingData = loadingDataSessions || isFetched || isLoading;
+  const loadingData = !loadingDataSessions && !isFetched && !isLoading;
+  const splitNamesInMuscleGroups =
+    typeof nameOfMusclesGroups === 'string'
+      ? nameOfMusclesGroups
+      : nameOfMusclesGroups.map(name => name.split('/')[0]).join(' & ');
 
   return {
     navigate,
     idOfMusclesGroups,
+    splitNamesInMuscleGroups,
     addNewExerciseContainer,
     addExerciseContainer,
     dataMusclesGroups,
@@ -328,5 +359,6 @@ export function useEditSessionInfos({route}: IProps) {
     totalSeriesOfSession,
     listOfExercisesAdded,
     loadingData,
+    isLoadingUpdateSession,
   };
 }

@@ -11,6 +11,6 @@ export const PressableButton = styled.TouchableOpacity`
 
 export const TextButton = styled.Text`
   text-align: center;
-  font-size: 22px;
+  font-size: 20px;
   color: #fff;
 `;

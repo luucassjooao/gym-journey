@@ -27,7 +27,9 @@ export default function ExerciseContainer({
       selectedNewExercise={thisExerciseIsSelectedOnListNewExercise}
       activeOpacity={1}>
       <S.Image source={require('../../../../../img/image.png')} />
-      <S.Text>{item.name}</S.Text>
+      <S.ViewTextName>
+        <S.Text>{item.name}</S.Text>
+      </S.ViewTextName>
     </S.Wrapper>
   );
 }

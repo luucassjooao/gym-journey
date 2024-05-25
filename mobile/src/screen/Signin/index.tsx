@@ -19,7 +19,7 @@ export function Signin() {
     } catch {
       Toast.show({
         type: 'error',
-        text1: 'Ouve algum erro ao voce tentar fazer o login!',
+        text1: 'Ouve algum erro ao você tentar fazer o login!',
         text2: 'Tente novamente!',
         position: 'bottom',
       });

@@ -1,6 +1,5 @@
 import InputApp from '../Input';
 import * as S from './styles';
-import Icon from 'react-native-vector-icons/FontAwesome5';
 import MuscleGroupService, {
   IReturnDataGetMusclesGroups,
 } from '../../service/MuscleGroupService';
@@ -74,7 +73,7 @@ export default function AddNewExercise({
 
   const {
     '0': {data: dataMuscle},
-    '1': {data: dataMuscleSelected, refetch: refetchMuscleSelected},
+    '1': {data: dataMuscleSelected, refetch: refetchMuscleSelected, isFetching},
   } = useQueries({
     queries: [
       {
@@ -166,15 +165,12 @@ export default function AddNewExercise({
     <S.Container>
       <S.Wrapper>
         <InputApp
-          width={84}
+          placeholder="Nome de um exercicio especifico"
           background="#fff"
           colorText="#000"
           value={searchExercise}
           onChange={e => setSearchExercise(e.nativeEvent.text)}
         />
-        <S.SearchButton>
-          <Icon name="search" solid size={30} />
-        </S.SearchButton>
       </S.Wrapper>
 
       <DropdownApp
@@ -191,7 +187,7 @@ export default function AddNewExercise({
       {renderComponent(searchExercise.length !== 0, componentes.searchExercise)}
       {renderComponent(!!selectedMuscleGroup, componentes.selectedMuscleGroup)}
 
-      <Spinner visible={loadingSearchExerciseOfMuscleSelected} />
+      <Spinner visible={loadingSearchExerciseOfMuscleSelected || isFetching} />
     </S.Container>
   );
 }

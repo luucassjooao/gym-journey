@@ -6,12 +6,20 @@ interface Duration {
   end: string;
 }
 
+interface NewSeriesInformationType {
+  exerciseName: string;
+  exerciseId: string;
+  observation?: string;
+  series: TSubmitSerieInfos[];
+  newExercise?: boolean;
+}
+
 export interface ISession {
   id: string;
   userId: string;
   date: string;
   typeSession: string;
   duration: Duration;
-  seriesinformation: Array<{[key: string]: TSubmitSerieInfos[]}>;
+  seriesinformation: NewSeriesInformationType[];
   targetedMuscles: Muscle[];
 }

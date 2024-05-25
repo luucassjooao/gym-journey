@@ -31,3 +31,8 @@ export const Text = styled.Text`
   color: #000;
   font-weight: 500;
 `;
+
+export const ViewTextName = styled.View`
+  max-width: 300px;
+  padding: 8px;
+`;

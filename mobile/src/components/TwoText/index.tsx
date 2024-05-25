@@ -21,10 +21,19 @@ export default function TwoTextApp({
 }: IProps) {
   return (
     <Text
-      style={{fontSize: fontSizeFirstText, color: colorFirstText}}
+      style={{
+        fontSize: fontSizeFirstText,
+        color: colorFirstText,
+        fontWeight: '600',
+      }}
       {...props}>
       {textFirstText}
-      <Text style={{fontSize: fontSizeSecondText, color: colorSecondText}}>
+      <Text
+        style={{
+          fontSize: fontSizeSecondText,
+          color: colorSecondText,
+          fontWeight: '400',
+        }}>
         {textSecondText}
       </Text>
     </Text>

@@ -63,6 +63,7 @@ export default function CreateNewSession({
       });
 
       navigation.navigate('editSessionInfos', {
+        nameOfMusclesGroups: selectedMusclesGroups.map(e => e.name),
         sessionId: createSession.id,
         idOfMusclesGroups: idsOfSelectedsMusclesGroups,
       });
@@ -91,8 +92,7 @@ export default function CreateNewSession({
       confirmLabel="Confirmar"
       onCancel={() => switchModalVisible()}
       onConfirm={() => handleConfirm()}
-      visible={isModalVisible}
-      danger={true}>
+      visible={isModalVisible}>
       <S.Container>
         <DropdownApp
           mainList={namesOfMusclesGroups}

@@ -5,7 +5,11 @@ import EditSessionInfos from '../../screen/EditSessionInfos';
 
 export type PrivateRoutesParamList = {
   home: undefined;
-  editSessionInfos: {idOfMusclesGroups: string | string[]; sessionId: string};
+  editSessionInfos: {
+    idOfMusclesGroups: string | string[];
+    sessionId: string;
+    nameOfMusclesGroups: string | string[];
+  };
 };
 
 export type PrivateRouteNavitationProp = NavigationProp<PrivateRoutesParamList>;
@@ -17,6 +21,7 @@ export default function PrivateRoutes() {
     <Private.Navigator
       screenOptions={{
         headerShown: false,
+        animationEnabled: true,
       }}
       initialRouteName="home">
       <Private.Screen name="home" component={Home} />
