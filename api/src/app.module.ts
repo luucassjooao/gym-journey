@@ -8,6 +8,7 @@ import { SessionsModule } from './module/session/session.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './module/auth/auth.guard';
 import { UserModule } from './module/user/user.module';
+import { s3Module } from './module/s3/s3.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { UserModule } from './module/user/user.module';
     MuscleGroupsModule,
     SessionsModule,
     UserModule,
+    s3Module,
   ],
   controllers: [],
   providers: [

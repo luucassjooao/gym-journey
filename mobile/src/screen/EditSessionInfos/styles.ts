@@ -64,6 +64,7 @@ export const Image = styled.Image`
   width: 70px;
   height: 70px;
   border-radius: 20px;
+  background: #fff;
 `;
 
 export const ViewAddExercises = styled.View`

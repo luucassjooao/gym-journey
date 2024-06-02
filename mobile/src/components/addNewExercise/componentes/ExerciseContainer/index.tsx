@@ -26,7 +26,7 @@ export default function ExerciseContainer({
       selecteAlreadyAdded={thisExerciseIsSelectedOnListAlreadyAdded}
       selectedNewExercise={thisExerciseIsSelectedOnListNewExercise}
       activeOpacity={1}>
-      <S.Image source={require('../../../../../img/image.png')} />
+      <S.Image source={{uri: item.media}} />
       <S.ViewTextName>
         <S.Text>{item.name}</S.Text>
       </S.ViewTextName>

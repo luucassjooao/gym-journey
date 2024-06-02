@@ -107,7 +107,7 @@ export default function EditSessionInfos({route}: IProps) {
             renderItem={({item}) => (
               <S.WrapperInfoExercise key={Math.random()}>
                 <S.NameImageOfExercise>
-                  <S.Image source={require('../../../img/image.png')} />
+                  <S.Image source={{uri: item.media}} />
                   <View>
                     <Text style={[styles.textWhiteText, {fontSize: 18}]}>
                       {item.name}
