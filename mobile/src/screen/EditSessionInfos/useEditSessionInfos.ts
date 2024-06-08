@@ -11,14 +11,11 @@ import {
 } from '../../utils/types/Exercise';
 import {PrivateRouteNavitationProp} from '../../routes/private';
 import {useNavigation} from '@react-navigation/native';
-import {useMutation, useQueries} from '@tanstack/react-query';
+import {useQueries} from '@tanstack/react-query';
 import {ISession} from '../../utils/types/Session';
-import SessionService, {
-  IPropsUpdateSeriesInformation,
-} from '../../service/SessionService';
+import SessionService from '../../service/SessionService';
 import Toast from 'react-native-toast-message';
 import {IProps} from '.';
-import {queryClient} from '../../../App';
 
 export function useEditSessionInfos({route}: IProps) {
   const {sessionId, idOfMusclesGroups, nameOfMusclesGroups} = route.params;
@@ -81,27 +78,9 @@ export function useEditSessionInfos({route}: IProps) {
     typeof idOfMusclesGroups === 'string'
       ? idOfMusclesGroups
       : (idOfMusclesGroups as string[]).join(',');
-
-  const updateSeriesInformation = async (
-    newSeriesInformation: IPropsUpdateSeriesInformation,
-  ) => {
-    return SessionService.updateSeriesInformation(newSeriesInformation);
-  };
-
-  const useUpdateSeriesInformation = () => {
-    return useMutation({
-      mutationFn: updateSeriesInformation,
-      onSuccess: () => {
-        queryClient.invalidateQueries({
-          queryKey: [sessionId],
-        });
-      },
-    });
-  };
-  const {mutateAsync: updateSerie} = useUpdateSeriesInformation();
   const {
     '0': {data: dataMusclesGroups},
-    '1': {data: dataSessionAlreadyExist, isFetched, isLoading},
+    '1': {data: dataSessionAlreadyExist, isFetched, isLoading, refetch: refetchInfosSession},
   } = useQueries({
     queries: [
       {
@@ -120,15 +99,23 @@ export function useEditSessionInfos({route}: IProps) {
   });
 
   useEffect(() => {
+    return () => {
+      (async () => {
+        await refetchInfosSession();
+      })();
+    }
+  }, []);
+
+  useEffect(() => {
     if (dataSessionAlreadyExist) {
       setLoadingDataSession(true);
       setListOfExercisesAdded([]);
       for (const dataObject of dataSessionAlreadyExist.seriesinformation) {
-        const {exerciseId, exerciseName, observation, series} = dataObject;
+        const {exerciseId, exerciseName, observation, series, exerciseMedia} = dataObject;
         setListOfExercisesAdded(prevState => {
           const pushExercise: IExerciseTypeProps = {
             id: exerciseId,
-            media: '',
+            media: exerciseMedia,
             musclesGroupsId: idsOfMusclesGroups,
             name: exerciseName,
             observation: observation as string,
@@ -236,7 +223,7 @@ export function useEditSessionInfos({route}: IProps) {
   }: Omit<TSubmitSerieInfos, 'exerciseId'>) {
     setIsLoadingUpdateSession(true);
     try {
-      await updateSerie({
+      await SessionService.updateSeriesInformation({
         idOfSession: sessionId,
         seriesInformation: {
           exerciseId: addNewInfosOnExercise.exerciseId,

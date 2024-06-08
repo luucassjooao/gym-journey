@@ -9,6 +9,7 @@ interface Duration {
 interface NewSeriesInformationType {
   exerciseName: string;
   exerciseId: string;
+  exerciseMedia: string;
   observation?: string;
   series: TSubmitSerieInfos[];
   newExercise?: boolean;

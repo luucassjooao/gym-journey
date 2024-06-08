@@ -8,7 +8,9 @@ type RequestOptions = Omit<RequestInit, 'body' | 'headers'> & {
 class HttpClient {
   private baseURL;
 
-  constructor(baseURL = 'https://2f21-170-239-192-57.ngrok-free.app') {
+  constructor(
+    baseURL = 'https://e250-2804-5c-55b4-ec00-50b-75f0-fed6-db75.ngrok-free.app',
+  ) {
     this.baseURL = baseURL;
   }
 
