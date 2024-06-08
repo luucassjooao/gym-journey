@@ -138,6 +138,7 @@ export class SessionsService {
               exerciseName: findExerciseIdInSeriesInformation.name,
               exerciseId,
               observation: '',
+              exerciseMedia: findExerciseIdInSeriesInformation.media,
               series: [series],
             },
           },
