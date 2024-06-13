@@ -13,12 +13,20 @@ import {PrivateRouteNavitationProp} from '../../routes/private';
 import {useNavigation} from '@react-navigation/native';
 import {useQueries} from '@tanstack/react-query';
 import {ISession} from '../../utils/types/Session';
-import SessionService from '../../service/SessionService';
+import SessionService, { IGetLatestSessions } from '../../service/SessionService';
 import Toast from 'react-native-toast-message';
 import {IProps} from '.';
 
+interface IGotToScreen {
+  targetedMuscles: {
+    name: string;
+    id: string;
+  }[];
+  id: string;
+}
+
 export function useEditSessionInfos({route}: IProps) {
-  const {sessionId, idOfMusclesGroups, nameOfMusclesGroups} = route.params;
+  const {sessionId, idOfMusclesGroups, nameOfMusclesGroups, backThePreviousScreen} = route.params;
   const [addExerciseContainer, setAddExerciseContainer] =
     useState<boolean>(false);
   const [listOfNewExercises, setListOfNewExercises] = useState<
@@ -72,6 +80,8 @@ export function useEditSessionInfos({route}: IProps) {
   const [isLoadingUpdateSession, setIsLoadingUpdateSession] =
     useState<boolean>(false);
 
+  const [openModalGetLatestSessions, setOpenModalGetLatestSessions] = useState(false);
+
   const navigate = useNavigation<PrivateRouteNavitationProp>();
 
   const idsOfMusclesGroups =
@@ -81,6 +91,7 @@ export function useEditSessionInfos({route}: IProps) {
   const {
     '0': {data: dataMusclesGroups},
     '1': {data: dataSessionAlreadyExist, isFetched, isLoading, refetch: refetchInfosSession},
+    '2': {data: dataGetLatestSessions},
   } = useQueries({
     queries: [
       {
@@ -95,6 +106,12 @@ export function useEditSessionInfos({route}: IProps) {
         refetchOnMount: true,
         refetchOnWindowFocus: false,
       },
+      {
+        queryKey: [`${sessionId}-${idsOfMusclesGroups}`],
+        queryFn: async (): Promise<IGetLatestSessions[]> => SessionService.getLatestSessions(typeof idsOfMusclesGroups === 'string' ? [idsOfMusclesGroups] : idsOfMusclesGroups),
+        staleTime: 36000,
+        refetchInterval: 36000,
+      }
     ],
   });
 
@@ -315,6 +332,24 @@ export function useEditSessionInfos({route}: IProps) {
     return totalSeries;
   }
 
+  async function modalGetLatestSessions() {
+    setOpenModalGetLatestSessions((prevState) => prevState !== true);
+  }
+
+  function goToScreen({id, targetedMuscles}: IGotToScreen) {
+    navigate.navigate('editSessionInfos', {
+      nameOfMusclesGroups: targetedMuscles.map(i => i.name),
+      idOfMusclesGroups: targetedMuscles.map(i => i.id),
+      sessionId: id,
+      backThePreviousScreen: {
+        sessionId: sessionId,
+        nameOfMusclesGroups: nameOfMusclesGroups,
+        idOfMusclesGroups: idOfMusclesGroups
+      }
+    })
+    modalGetLatestSessions()
+  }
+
   const loadingData = !loadingDataSessions && !isFetched && !isLoading;
   const splitNamesInMuscleGroups =
     typeof nameOfMusclesGroups === 'string'
@@ -322,6 +357,7 @@ export function useEditSessionInfos({route}: IProps) {
       : nameOfMusclesGroups.map(name => name.split('/')[0]).join(' & ');
 
   return {
+    sessionId,
     navigate,
     idOfMusclesGroups,
     splitNamesInMuscleGroups,
@@ -347,5 +383,10 @@ export function useEditSessionInfos({route}: IProps) {
     listOfExercisesAdded,
     loadingData,
     isLoadingUpdateSession,
+    openModalGetLatestSessions,
+    modalGetLatestSessions,
+    dataGetLatestSessions,
+    backThePreviousScreen,
+    goToScreen
   };
 }

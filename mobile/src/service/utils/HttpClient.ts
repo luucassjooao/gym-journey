@@ -9,7 +9,7 @@ class HttpClient {
   private baseURL;
 
   constructor(
-    baseURL = 'https://e250-2804-5c-55b4-ec00-50b-75f0-fed6-db75.ngrok-free.app',
+    baseURL = 'https://bbc0-2804-5c-55a0-cc00-89e-3d3f-597e-a2.ngrok-free.app',
   ) {
     this.baseURL = baseURL;
   }

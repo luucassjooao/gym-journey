@@ -9,6 +9,7 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import {useNavigation} from '@react-navigation/native';
 import {PrivateRouteNavitationProp} from '../../routes/private';
 import {useQuery} from '@tanstack/react-query';
+import { ISession } from '../../utils/types/Session';
 
 export default function Home() {
   const {logout} = useAuth();
@@ -24,6 +25,16 @@ export default function Home() {
   });
   function switchModalVisible() {
     setModalVisible(prevState => prevState !== true);
+  }
+
+  function quantityOfSeries(seriesInformation: ISession['seriesinformation']) {
+    let numberOfSerie = 0;
+    seriesInformation.map(({series}) => {
+      series.forEach(() => {
+        numberOfSerie += 1
+      })
+    })
+    return numberOfSerie;
   }
 
   return (
@@ -53,6 +64,9 @@ export default function Home() {
                 <S.TextDetail>
                   Treino de:{' '}
                   {`${item.targetedMuscles.map(i => i.name.split('/')[0])}`}
+                </S.TextDetail>
+                <S.TextDetail>
+                  Exercicios: {item.seriesinformation.length} - Qtd de series: {quantityOfSeries(item.seriesinformation)}
                 </S.TextDetail>
                 <S.TextDetail>
                   Data: {`${new Date(item.date).toLocaleDateString()}`}

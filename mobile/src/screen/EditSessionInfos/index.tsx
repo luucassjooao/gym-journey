@@ -1,4 +1,4 @@
-import {FlatList, StyleSheet, Text, View} from 'react-native';
+import {FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import * as S from './styles';
 import ButtonApp from '../../components/Button';
 import AddNewExercise from '../../components/addNewExercise';
@@ -44,13 +44,32 @@ export default function EditSessionInfos({route}: IProps) {
     loadingData,
     splitNamesInMuscleGroups,
     isLoadingUpdateSession,
+    openModalGetLatestSessions,
+    modalGetLatestSessions,
+    dataGetLatestSessions,
+    backThePreviousScreen,
+    goToScreen,
+    sessionId
   } = useEditSessionInfos({route});
 
   return (
+    <>
     <S.Container>
       <S.Header>
         <S.ButtonHeader onPress={() => navigate.navigate('home')}>
           <S.TextButton>Home</S.TextButton>
+        </S.ButtonHeader>
+        {backThePreviousScreen && backThePreviousScreen.sessionId !== sessionId ? (
+          <S.ButtonHeader onPress={() => navigate.navigate('editSessionInfos', {
+            nameOfMusclesGroups: backThePreviousScreen.nameOfMusclesGroups,
+            idOfMusclesGroups: backThePreviousScreen.idOfMusclesGroups,
+            sessionId: backThePreviousScreen.sessionId,
+          })}>
+            <S.TextButton>Voltar a ultima sessao</S.TextButton>
+          </S.ButtonHeader>
+        ) : null}
+        <S.ButtonHeader onPress={modalGetLatestSessions}>
+          <S.TextButton>Ver ultimas sessoes</S.TextButton>
         </S.ButtonHeader>
       </S.Header>
       <S.TopBarInfos>
@@ -245,8 +264,44 @@ export default function EditSessionInfos({route}: IProps) {
         />
       </ModalApp>
 
+
       <Spinner visible={loadingData || isLoadingUpdateSession} />
     </S.Container>
+      <ModalApp
+        cancelLabel="Voltar"
+        onCancel={modalGetLatestSessions}
+        title=""
+        visible={openModalGetLatestSessions}
+        onConfirm={() => {}}
+        confirmLabel=""
+        danger={false}
+        noPaddingOnTop
+        isFlatList>
+          <FlatList
+            data={dataGetLatestSessions}
+            renderItem={({item}) => (
+              <TouchableOpacity onPress={() => item.id === sessionId ? true : goToScreen({
+                targetedMuscles: item.targetedMuscles,
+                id: item.id,
+              })}>
+              <S.ContainerInfosGetLatestSessions currentSession={
+                item.id === sessionId ? true : false
+              } >
+                <S.Text currentSession={
+                  item.id === sessionId ? true : false
+                }>Treino de: {item.targetedMuscles.map(i => i.name.split('/')[0]).join(',')}</S.Text>
+                <S.Text currentSession={
+                  item.id === sessionId ? true : false
+                }>Date: {`${new Date(item.date).toLocaleDateString()}`}</S.Text>
+              </S.ContainerInfosGetLatestSessions>
+              </TouchableOpacity>
+            )}
+            contentContainerStyle={{ flexGrow: 0 }}
+            style={{ flex: 0 }}
+            keyExtractor={(item) => item.id}
+          />
+      </ModalApp>
+      </>
   );
 }
 

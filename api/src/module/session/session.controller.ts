@@ -28,6 +28,14 @@ export class SessionsController {
     return this.sessionsService.findOne(id);
   }
 
+  @Get('getLatestSessions/:muscleGroupsIds')
+  getLatestSessions(
+    @ActiveUserId() userId: string,
+    @Param('muscleGroupsIds', ParseArrayUUIDPipe) muscleGroupsIds: string[],
+  ) {
+    return this.sessionsService.getLatestSessions(userId, muscleGroupsIds);
+  }
+
   @Put(':id')
   updateSeriesInformation(
     @ActiveUserId() userId: string,

@@ -79,7 +79,7 @@ export function AuthProvider({children}: IAuthProvider) {
       );
       setUser(response);
     } catch (error) {
-      console.error('Error signing in:', error);
+      console.error('Error signin:', error);
       Toast.show({
         type: 'error',
         text1: 'Ouve algum erro ao você tentar fazer o login!',

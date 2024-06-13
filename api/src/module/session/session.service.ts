@@ -171,6 +171,33 @@ export class SessionsService {
     });
   }
 
+  async getLatestSessions(userId: string, muscleGroupsIds: string[]) {
+    const muscleLength = muscleGroupsIds.length;
+
+    return this.sessionRepo.findMany({
+      where: {
+        userId,
+        targetedMuscles: {
+          some: {
+            id: {
+              in: muscleGroupsIds,
+            },
+          },
+        },
+      },
+      take: muscleLength > 2 ? 5 : 10,
+      orderBy: {
+        date: 'desc',
+      },
+      select: {
+        targetedMuscles: true,
+        date: true,
+        id: true,
+        typeSession: true,
+      },
+    });
+  }
+
   async validate(userId: string, sessionId: string) {
     const isOwer = await this.sessionRepo.findUnique({
       where: { id: sessionId, userId },

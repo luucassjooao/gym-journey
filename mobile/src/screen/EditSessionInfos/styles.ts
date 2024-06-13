@@ -37,7 +37,7 @@ export const Header = styled.View`
   height: 50px;
   margin-bottom: 10px;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: space-around;
 `;
 
 export const ButtonHeader = styled.TouchableOpacity`
@@ -72,4 +72,19 @@ export const ViewAddExercises = styled.View`
   position: absolute;
   bottom: 20px;
   align-self: center;
+`;
+
+export const ContainerInfosGetLatestSessions = styled.View<{currentSession: boolean}>`
+  background: #fff;
+  border: 2px #000;
+  ${({currentSession}) => currentSession && 'background: #cad5caff;border:2px #fff;'}
+  border-radius: 8px;
+  padding: 4px;
+  margin-bottom: 8px;
+`;
+
+export const Text = styled.Text<{currentSession: boolean}>`
+  font-size: 16px;
+  color: ${({currentSession}) => currentSession ? '#fff' : '#000'};
+  font-weight: 500;
 `;

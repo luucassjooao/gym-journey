@@ -17,6 +17,16 @@ export interface IPropsUpdateSeriesInformation {
   };
 }
 
+export interface IGetLatestSessions {
+  targetedMuscles: {
+    id: string;
+    name: string
+  }[];
+  date: Date;
+  id: string;
+  typeSession: string;
+}
+
 class SessionService {
   private httpClient;
 
@@ -68,6 +78,15 @@ class SessionService {
       body: {
         seriesInformation,
       },
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+    });
+  }
+
+  async getLatestSessions(muscleGroupsIds: string[]): Promise<IGetLatestSessions[]> {
+    const {token} = await getInfosOfUserFromStorage();
+    return this.httpClient.get(`/sessions/getLatestSessions/${muscleGroupsIds.join(',')}`, {
       headers: {
         authorization: `Bearer ${token}`,
       },

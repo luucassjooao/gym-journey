@@ -1,6 +1,7 @@
 import {Modal} from 'react-native';
 import * as S from './styles';
 import ButtonApp from '../Button';
+import { FlatList } from 'react-native-gesture-handler';
 
 interface IModal {
   danger?: boolean;
@@ -12,6 +13,8 @@ interface IModal {
   confirmLabel: string;
   onCancel: () => void;
   onConfirm: () => void;
+  noPaddingOnTop?: boolean;
+  isFlatList?: boolean;
 }
 
 export default function ModalApp({
@@ -24,14 +27,22 @@ export default function ModalApp({
   confirmLabel,
   onCancel,
   onConfirm,
+  noPaddingOnTop = false,
+  isFlatList,
 }: IModal) {
   return (
     <Modal visible={visible} animationType="fade" transparent={true}>
       <S.Overlay>
-        <S.Container>
+        <S.Container noPaddingOnTop={noPaddingOnTop}>
           <S.Title danger={danger}>{title}</S.Title>
 
-          <S.ModalBody>{children}</S.ModalBody>
+          {isFlatList ? (
+            <>
+              {children}
+              </>
+          ) : (
+            <S.ModalBody>{children}</S.ModalBody>
+          )}
 
           <S.Footer>
             <ButtonApp

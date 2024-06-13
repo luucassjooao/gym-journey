@@ -8,9 +8,9 @@ export const Overlay = styled.View`
   z-index: 9;
 `;
 
-export const Container = styled.View`
+export const Container = styled.View<{ noPaddingOnTop: boolean }>`
   background: #fff;
-  padding: 20px;
+  ${({noPaddingOnTop}) => noPaddingOnTop ? 'padding: 0px 20px 20px 10px;' : 'padding: 20px;'}
   border-radius: 10px;
   width: 80%;
   justify-content: center;
@@ -31,5 +31,4 @@ export const Footer = styled.View`
   margin-top: 22px;
   flex-direction: row;
   align-items: center;
-  /* justify-content: flex-end; */
 `;

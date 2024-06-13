@@ -9,6 +9,11 @@ export type PrivateRoutesParamList = {
     idOfMusclesGroups: string | string[];
     sessionId: string;
     nameOfMusclesGroups: string | string[];
+    backThePreviousScreen?: {
+      idOfMusclesGroups: string | string[];
+      sessionId: string;
+      nameOfMusclesGroups: string | string[];
+    };
   };
 };
 
