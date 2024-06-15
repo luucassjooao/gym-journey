@@ -1,32 +1,64 @@
-import {useEffect, useState} from 'react';
-import MuscleGroupService, {
-  IReturnDataGetMusclesGroups,
-} from '../../service/MuscleGroupService';
-import {
-  IExerciseType,
-  IExerciseTypeProps,
-  IOpenModalInfos,
-  InfosSerie,
-  TSubmitSerieInfos,
-} from '../../utils/types/Exercise';
-import {PrivateRouteNavitationProp} from '../../routes/private';
-import {useNavigation} from '@react-navigation/native';
-import {useQueries} from '@tanstack/react-query';
-import {ISession} from '../../utils/types/Session';
-import SessionService, { IGetLatestSessions } from '../../service/SessionService';
-import Toast from 'react-native-toast-message';
-import {IProps} from '.';
+import { createContext, useEffect, useState } from "react";
+import { EditSessionInfosType, IEditSessionInfosProvider, IGoToScreen } from "./types";
+import { IExerciseType, IExerciseTypeProps, IOpenModalInfos, InfosSerie, TSubmitSerieInfos } from "../../utils/types/Exercise";
+import MuscleGroupService, { IReturnDataGetMusclesGroups } from "../../service/MuscleGroupService";
+import { useNavigation } from "@react-navigation/native";
+import { IRouteEditSessionInfos, PrivateRouteNavitationProp } from "../../routes/private";
+import { useQueries } from "@tanstack/react-query";
+import { ISession } from "../../utils/types/Session";
+import SessionService, { IGetLatestSessions } from "../../service/SessionService";
+import Toast from "react-native-toast-message";
+import Spinner from "react-native-loading-spinner-overlay";
 
-interface IGotToScreen {
-  targetedMuscles: {
-    name: string;
-    id: string;
-  }[];
-  id: string;
-}
+export const EditSessionInfosContext = createContext<EditSessionInfosType>({
+  navigate: null,
+  idOfMusclesGroups: [],
+  splitNamesInMuscleGroups: '',
+  addNewExerciseContainer: () => {},
+  addExerciseContainer: false,
+  dataMusclesGroups: undefined,
+  findTheExerciseOnListAlreadyAdded: (exerciseName: string) => false,
+  findTheExerciseOnListNewExercise: (exerciseName: string) => false,
+  handleAddNewExercise: (exercise: IExerciseType) => {},
+  listOfNewExercises: [],
+  selectedMuscleGroup: null,
+  setSelectedMuscleGroup: null,
+  addTheNewOnesExercisesForEditingInfos: () => {},
+  tableInfos: {
+    tableHead: [],
+},
+  setOpenModalInfos: null,
+  addNewSet: {
+    id: '',
+    add: false,
+},
+  handleUpdateInfosOfSeries: async ({ weight, reps, partials, helpedReps, useSomeEquipment, rateSerie, typeOfSerie, }: Omit<TSubmitSerieInfos, 'exerciseId'>) => {},
+  handleChangeAddNewSetToFalse: () => {},
+  handleChangeAddNewToTrue: (id: string) => {},
+  openModalInfos: null,
+  howManyExercisesToAdd: () => 0,
+  totalSeriesOfSession: () => 0,
+  listOfExercisesAdded: [],
+  loadingData: false,
+  route: (infos: IRouteEditSessionInfos) => {},
+  routesInfos: null,
+  openModalGetLatestSessions: false,
+  modalGetLatestSessions: async () => {},
+  dataGetLatestSessions: undefined,
+  backThePreviousScreen: undefined,
+  goToScreen: (infos: IGoToScreen) => {},
+  sessionId: '',
+  resetListOfExercises: () => {}
+});
 
-export function useEditSessionInfos({route}: IProps) {
-  const {sessionId, idOfMusclesGroups, nameOfMusclesGroups, backThePreviousScreen} = route.params;
+export function EditSessionInfosProvider({children}: IEditSessionInfosProvider) {
+  const [routesInfos, setRoutesInfos] = useState<IRouteEditSessionInfos | null>({
+    nameOfMusclesGroups: '',
+    idOfMusclesGroups: '',
+    sessionId: ''
+  });
+  const {nameOfMusclesGroups, idOfMusclesGroups, sessionId, backThePreviousScreen} = routesInfos as IRouteEditSessionInfos;
+
   const [addExerciseContainer, setAddExerciseContainer] =
     useState<boolean>(false);
   const [listOfNewExercises, setListOfNewExercises] = useState<
@@ -76,7 +108,7 @@ export function useEditSessionInfos({route}: IProps) {
     },
     rateSerie: '',
   });
-  const [loadingDataSessions, setLoadingDataSession] = useState<boolean>(true);
+  const [loadingDataSessions, setLoadingDataSession] = useState<boolean>(false);
   const [isLoadingUpdateSession, setIsLoadingUpdateSession] =
     useState<boolean>(false);
 
@@ -84,13 +116,27 @@ export function useEditSessionInfos({route}: IProps) {
 
   const navigate = useNavigation<PrivateRouteNavitationProp>();
 
+  function route({
+    nameOfMusclesGroups,
+    idOfMusclesGroups,
+    sessionId,
+    backThePreviousScreen
+  }: IRouteEditSessionInfos) {
+    setRoutesInfos({
+      nameOfMusclesGroups,
+      idOfMusclesGroups,
+      sessionId,
+      backThePreviousScreen
+    })
+  }
+
   const idsOfMusclesGroups =
     typeof idOfMusclesGroups === 'string'
       ? idOfMusclesGroups
       : (idOfMusclesGroups as string[]).join(',');
   const {
-    '0': {data: dataMusclesGroups},
-    '1': {data: dataSessionAlreadyExist, isFetched, isLoading, refetch: refetchInfosSession},
+    '0': {data: dataMusclesGroups, },
+    '1': {data: dataSessionAlreadyExist, isLoading, refetch: refetchInfosSession},
     '2': {data: dataGetLatestSessions},
   } = useQueries({
     queries: [
@@ -98,6 +144,7 @@ export function useEditSessionInfos({route}: IProps) {
         queryKey: [`${idsOfMusclesGroups}`],
         queryFn: async (): Promise<IReturnDataGetMusclesGroups[]> =>
           MuscleGroupService.seletectedMusclesGroups(idsOfMusclesGroups),
+        enabled: !!idOfMusclesGroups,
       },
       {
         queryKey: [sessionId],
@@ -105,12 +152,14 @@ export function useEditSessionInfos({route}: IProps) {
           SessionService.getUniqueSession(sessionId),
         refetchOnMount: true,
         refetchOnWindowFocus: false,
+        enabled: !!sessionId
       },
       {
         queryKey: [`${sessionId}-${idsOfMusclesGroups}`],
         queryFn: async (): Promise<IGetLatestSessions[]> => SessionService.getLatestSessions(typeof idsOfMusclesGroups === 'string' ? [idsOfMusclesGroups] : idsOfMusclesGroups),
         staleTime: 36000,
         refetchInterval: 36000,
+        enabled: !!sessionId && !!idOfMusclesGroups
       }
     ],
   });
@@ -124,8 +173,8 @@ export function useEditSessionInfos({route}: IProps) {
   }, []);
 
   useEffect(() => {
+    setLoadingDataSession(true);
     if (dataSessionAlreadyExist) {
-      setLoadingDataSession(true);
       setListOfExercisesAdded([]);
       for (const dataObject of dataSessionAlreadyExist.seriesinformation) {
         const {exerciseId, exerciseName, observation, series, exerciseMedia} = dataObject;
@@ -336,57 +385,86 @@ export function useEditSessionInfos({route}: IProps) {
     setOpenModalGetLatestSessions((prevState) => prevState !== true);
   }
 
-  function goToScreen({id, targetedMuscles}: IGotToScreen) {
-    navigate.navigate('editSessionInfos', {
-      nameOfMusclesGroups: targetedMuscles.map(i => i.name),
-      idOfMusclesGroups: targetedMuscles.map(i => i.id),
+  function goToScreen({id, targetedMuscles}: IGoToScreen) {
+    const nameMuscles = targetedMuscles.map(({name}) => name);
+    const idMuscles = targetedMuscles.map(({id}) => id);
+    route({
+      nameOfMusclesGroups: nameMuscles,
+      idOfMusclesGroups: idMuscles,
       sessionId: id,
       backThePreviousScreen: {
-        sessionId: sessionId,
-        nameOfMusclesGroups: nameOfMusclesGroups,
-        idOfMusclesGroups: idOfMusclesGroups
+        nameOfMusclesGroups,
+        idOfMusclesGroups,
+        sessionId
+      }
+    })
+
+    navigate.navigate('editSessionInfos', {
+      nameOfMusclesGroups: nameMuscles,
+      idOfMusclesGroups: idMuscles,
+      sessionId: id,
+      backThePreviousScreen: {
+        sessionId,
+        nameOfMusclesGroups,
+        idOfMusclesGroups
       }
     })
     modalGetLatestSessions()
   }
 
-  const loadingData = !loadingDataSessions && !isFetched && !isLoading;
+  function resetListOfExercises() {
+    setListOfExercisesAdded([]);
+  }
+
+  const loadingData = loadingDataSessions || isLoading || isLoadingUpdateSession;
   const splitNamesInMuscleGroups =
     typeof nameOfMusclesGroups === 'string'
       ? nameOfMusclesGroups
-      : nameOfMusclesGroups.map(name => name.split('/')[0]).join(' & ');
+        : !nameOfMusclesGroups ? ''
+          :  nameOfMusclesGroups?.map(name => name.split('/')[0]).join(' & ');
 
-  return {
-    sessionId,
-    navigate,
-    idOfMusclesGroups,
-    splitNamesInMuscleGroups,
-    addNewExerciseContainer,
-    addExerciseContainer,
-    dataMusclesGroups,
-    findTheExerciseOnListAlreadyAdded,
-    findTheExerciseOnListNewExercise,
-    handleAddNewExercise,
-    listOfNewExercises,
-    selectedMuscleGroup,
-    setSelectedMuscleGroup,
-    addTheNewOnesExercisesForEditingInfos,
-    tableInfos,
-    setOpenModalInfos,
-    addNewSet,
-    handleUpdateInfosOfSeries,
-    handleChangeAddNewSetToFalse,
-    handleChangeAddNewToTrue,
-    openModalInfos,
-    howManyExercisesToAdd,
-    totalSeriesOfSession,
-    listOfExercisesAdded,
-    loadingData,
-    isLoadingUpdateSession,
-    openModalGetLatestSessions,
-    modalGetLatestSessions,
-    dataGetLatestSessions,
-    backThePreviousScreen,
-    goToScreen
-  };
+  return (
+    <>
+      <Toast />
+      <Spinner visible={loadingData} />
+      <EditSessionInfosContext.Provider value={{
+        navigate,
+        idOfMusclesGroups,
+        splitNamesInMuscleGroups,
+        addNewExerciseContainer,
+        addExerciseContainer,
+        dataMusclesGroups,
+        findTheExerciseOnListAlreadyAdded,
+        findTheExerciseOnListNewExercise,
+        handleAddNewExercise,
+        listOfNewExercises,
+        selectedMuscleGroup,
+        setSelectedMuscleGroup,
+        addTheNewOnesExercisesForEditingInfos,
+        tableInfos,
+        setOpenModalInfos,
+        addNewSet,
+        handleUpdateInfosOfSeries,
+        handleChangeAddNewSetToFalse,
+        handleChangeAddNewToTrue,
+        openModalInfos,
+        howManyExercisesToAdd,
+        totalSeriesOfSession,
+        listOfExercisesAdded,
+        loadingData,
+        route,
+        routesInfos,
+        openModalGetLatestSessions,
+        modalGetLatestSessions,
+        dataGetLatestSessions,
+        backThePreviousScreen,
+        goToScreen,
+        sessionId,
+        resetListOfExercises
+      }} >
+        {children}
+      </EditSessionInfosContext.Provider>
+    </>
+  )
 }
+

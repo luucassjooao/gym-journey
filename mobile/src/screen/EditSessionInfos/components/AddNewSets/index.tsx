@@ -16,16 +16,14 @@ import {
   TSubmitSerieInfos,
 } from '../../../../utils/types/Exercise';
 import * as S from './styles';
+import { useEdit } from '../../../../hooks/useEdit';
 
-interface IProps {
-  handleUpdateInfosOfSeries: (x: Omit<TSubmitSerieInfos, 'exerciseId'>) => void;
-  handleChangeAddNewSetToFalse: () => void;
-}
+export default function AddNewSets() {
+  const {
+    handleUpdateInfosOfSeries,
+    handleChangeAddNewSetToFalse
+  } = useEdit();
 
-export default function AddNewSets({
-  handleUpdateInfosOfSeries,
-  handleChangeAddNewSetToFalse,
-}: IProps) {
   const [weight, setWeight] = useState<number>(0);
   const [reps, setReps] = useState<number>(0);
   const [partials, setPartials] = useState<IPartials>({

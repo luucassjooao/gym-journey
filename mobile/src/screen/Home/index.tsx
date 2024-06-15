@@ -10,9 +10,11 @@ import {useNavigation} from '@react-navigation/native';
 import {PrivateRouteNavitationProp} from '../../routes/private';
 import {useQuery} from '@tanstack/react-query';
 import { ISession } from '../../utils/types/Session';
+import { useEdit } from '../../hooks/useEdit';
 
 export default function Home() {
   const {logout} = useAuth();
+  const {route} = useEdit();
 
   const [modalVisible, setModalVisible] = useState<boolean>(false);
 
@@ -37,6 +39,20 @@ export default function Home() {
     return numberOfSerie;
   }
 
+  function goToEditSessionInfos(name: string[], ids: string[], sessionId: string) {
+    route({
+      nameOfMusclesGroups: name,
+      idOfMusclesGroups: ids,
+      sessionId
+    })
+
+    navigation.navigate('editSessionInfos', {
+      nameOfMusclesGroups: name,
+      idOfMusclesGroups: ids,
+      sessionId: sessionId,
+    })
+  }
+
   return (
     <S.Container>
       <S.Text onPress={() => logout()}>SAIR</S.Text>
@@ -54,13 +70,11 @@ export default function Home() {
             renderItem={({item}) => (
               <S.ContainerSessionDetails
                 key={item.id}
-                onPress={() =>
-                  navigation.navigate('editSessionInfos', {
-                    nameOfMusclesGroups: item.targetedMuscles.map(i => i.name),
-                    idOfMusclesGroups: item.targetedMuscles.map(i => i.id),
-                    sessionId: item.id,
-                  })
-                }>
+                onPress={() => goToEditSessionInfos(
+                  item.targetedMuscles.map(i => i.name),
+                  item.targetedMuscles.map(i => i.id),
+                  item.id
+                )}>
                 <S.TextDetail>
                   Treino de:{' '}
                   {`${item.targetedMuscles.map(i => i.name.split('/')[0])}`}

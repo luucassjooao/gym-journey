@@ -10,6 +10,7 @@ import UserService from '../../service/UserService';
 import {REACT_QUERY_BASIC_USER_INFOS_KEY} from '../../storage/RectQueryKeys';
 import Spinner from 'react-native-loading-spinner-overlay';
 import {getInfosOfUserFromStorage} from '../../utils/getInfosOfUserFromStorage';
+import { queryClient } from '../../../App';
 
 export const AuthContext = createContext<AuthContextType>({
   user: null,
@@ -67,6 +68,7 @@ export function AuthProvider({children}: IAuthProvider) {
   async function handleLogout() {
     setUser(null);
     await AsyncStorage.removeItem(ASYNC_STORAGE_USER_KEY);
+    queryClient.clear();
   }
 
   async function signIn(email: string, password: string) {

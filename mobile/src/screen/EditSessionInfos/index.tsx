@@ -2,74 +2,60 @@ import {FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import * as S from './styles';
 import ButtonApp from '../../components/Button';
 import AddNewExercise from '../../components/addNewExercise';
-import {RouteProp} from '@react-navigation/native';
-import {PrivateRoutesParamList} from '../../routes/private';
 import {Row, Rows, Table} from 'react-native-reanimated-table';
 import AddNewSets from './components/AddNewSets';
-import Toast from 'react-native-toast-message';
 import ModalApp from '../../components/Modal';
-import {useEditSessionInfos} from './useEditSessionInfos';
 import TwoTextApp from '../../components/TwoText';
-import Spinner from 'react-native-loading-spinner-overlay';
+import { useEdit } from '../../hooks/useEdit';
 
-type RouteProps = RouteProp<PrivateRoutesParamList, 'editSessionInfos'>;
-export interface IProps {
-  route: RouteProps;
-}
-
-export default function EditSessionInfos({route}: IProps) {
+export default function EditSessionInfos() {
   const {
     navigate,
     idOfMusclesGroups,
     addNewExerciseContainer,
     addExerciseContainer,
-    dataMusclesGroups,
-    findTheExerciseOnListAlreadyAdded,
-    findTheExerciseOnListNewExercise,
-    handleAddNewExercise,
     listOfNewExercises,
-    selectedMuscleGroup,
-    setSelectedMuscleGroup,
     addTheNewOnesExercisesForEditingInfos,
     tableInfos,
     setOpenModalInfos,
     addNewSet,
-    handleUpdateInfosOfSeries,
-    handleChangeAddNewSetToFalse,
     handleChangeAddNewToTrue,
     openModalInfos,
     howManyExercisesToAdd,
     totalSeriesOfSession,
     listOfExercisesAdded,
-    loadingData,
     splitNamesInMuscleGroups,
-    isLoadingUpdateSession,
     openModalGetLatestSessions,
     modalGetLatestSessions,
     dataGetLatestSessions,
     backThePreviousScreen,
     goToScreen,
-    sessionId
-  } = useEditSessionInfos({route});
+    sessionId,
+    route,
+    resetListOfExercises
+  } = useEdit();
 
   return (
     <>
     <S.Container>
       <S.Header>
-        <S.ButtonHeader onPress={() => navigate.navigate('home')}>
+        <S.ButtonHeader onPress={() => {
+          resetListOfExercises()
+          navigate.navigate('home')
+        }}>
           <S.TextButton>Home</S.TextButton>
         </S.ButtonHeader>
         {backThePreviousScreen && backThePreviousScreen.sessionId !== sessionId ? (
-          <S.ButtonHeader onPress={() => navigate.navigate('editSessionInfos', {
+          <S.ButtonHeader onPress={() => route({
             nameOfMusclesGroups: backThePreviousScreen.nameOfMusclesGroups,
             idOfMusclesGroups: backThePreviousScreen.idOfMusclesGroups,
             sessionId: backThePreviousScreen.sessionId,
           })}>
-            <S.TextButton>Voltar a ultima sessao</S.TextButton>
+            <S.TextButton>Voltar a última sessão</S.TextButton>
           </S.ButtonHeader>
         ) : null}
         <S.ButtonHeader onPress={modalGetLatestSessions}>
-          <S.TextButton>Ver ultimas sessoes</S.TextButton>
+        <S.TextButton>Ver últimas sessões</S.TextButton>
         </S.ButtonHeader>
       </S.Header>
       <S.TopBarInfos>
@@ -98,17 +84,7 @@ export default function EditSessionInfos({route}: IProps) {
 
       {addExerciseContainer ? (
         <>
-          <AddNewExercise
-            key={Math.random()}
-            exercises={dataMusclesGroups!}
-            findTheExerciseOnListAlreadyAdded={
-              findTheExerciseOnListAlreadyAdded
-            }
-            findTheExerciseOnListNewExercise={findTheExerciseOnListNewExercise}
-            handleAddNewExercise={handleAddNewExercise}
-            selectedMuscleGroup={selectedMuscleGroup}
-            setSelectedMuscleGroup={setSelectedMuscleGroup}
-          />
+          <AddNewExercise key={Math.random()} />
           {listOfNewExercises.length > 0 && (
             <S.ViewAddExercises>
               <ButtonApp
@@ -159,7 +135,7 @@ export default function EditSessionInfos({route}: IProps) {
                               typeOfSerie,
                               <S.ButtonMoreInfos
                                 onPress={() =>
-                                  setOpenModalInfos({
+                                  setOpenModalInfos!({
                                     openModal: true,
                                     helpedReps,
                                     partials,
@@ -181,12 +157,7 @@ export default function EditSessionInfos({route}: IProps) {
                     )}
                   </Table>
                   {addNewSet?.add && addNewSet?.id === item.id && (
-                    <AddNewSets
-                      handleUpdateInfosOfSeries={handleUpdateInfosOfSeries}
-                      handleChangeAddNewSetToFalse={
-                        handleChangeAddNewSetToFalse
-                      }
-                    />
+                    <AddNewSets />
                   )}
                   {!addNewSet?.add ? (
                     <ButtonApp
@@ -202,70 +173,6 @@ export default function EditSessionInfos({route}: IProps) {
           />
         </S.ContainerInfoExercise>
       )}
-      <Toast />
-      <ModalApp
-        cancelLabel="Voltar"
-        onCancel={() =>
-          setOpenModalInfos({
-            openModal: false,
-            helpedReps: {
-              haveHelped: false,
-              reps: 0,
-            },
-            useSomeEquipment: {
-              listOfEquipment: [],
-              use: false,
-            },
-            partials: {
-              havePartials: false,
-              reps: 0,
-            },
-            rateSerie: '',
-          })
-        }
-        title="Algumas das informações destas serie"
-        visible={openModalInfos.openModal}
-        onConfirm={() => {}}
-        confirmLabel=""
-        danger={false}>
-        <TwoTextApp
-          colorFirstText={'#000'}
-          fontSizeFirstText={20}
-          textFirstText="Como a serie foi:"
-          colorSecondText={'#000'}
-          fontSizeSecondText={18}
-          textSecondText={openModalInfos.rateSerie}
-        />
-        <TwoTextApp
-          colorFirstText={'#000'}
-          fontSizeFirstText={20}
-          textFirstText="Quantas repetições forçadas/ajudadas teve:"
-          colorSecondText={'#000'}
-          fontSizeSecondText={18}
-          textSecondText={openModalInfos.helpedReps?.reps}
-        />
-        <TwoTextApp
-          colorFirstText={'#000'}
-          fontSizeFirstText={20}
-          textFirstText="Quantas repetições parciais teve: "
-          colorSecondText={'#000'}
-          fontSizeSecondText={18}
-          textSecondText={openModalInfos.partials?.reps}
-        />
-        <TwoTextApp
-          colorFirstText={'#000'}
-          fontSizeFirstText={20}
-          textFirstText="Quais equipamentos foram usados:"
-          colorSecondText={'#000'}
-          fontSizeSecondText={18}
-          textSecondText={openModalInfos.useSomeEquipment.listOfEquipment
-            .map(equipment => equipment)
-            .join(' & ')}
-        />
-      </ModalApp>
-
-
-      <Spinner visible={loadingData || isLoadingUpdateSession} />
     </S.Container>
       <ModalApp
         cancelLabel="Voltar"
@@ -300,6 +207,66 @@ export default function EditSessionInfos({route}: IProps) {
             style={{ flex: 0 }}
             keyExtractor={(item) => item.id}
           />
+      </ModalApp>
+      <ModalApp
+        cancelLabel="Voltar"
+        onCancel={() =>
+          setOpenModalInfos!({
+            openModal: false,
+            helpedReps: {
+              haveHelped: false,
+              reps: 0,
+            },
+            useSomeEquipment: {
+              listOfEquipment: [],
+              use: false,
+            },
+            partials: {
+              havePartials: false,
+              reps: 0,
+            },
+            rateSerie: '',
+          })
+        }
+        title="Algumas das informações destas serie"
+        visible={openModalInfos!.openModal}
+        onConfirm={() => {}}
+        confirmLabel=""
+        danger={false}>
+        <TwoTextApp
+          colorFirstText={'#000'}
+          fontSizeFirstText={20}
+          textFirstText="Como a serie foi:"
+          colorSecondText={'#000'}
+          fontSizeSecondText={18}
+          textSecondText={openModalInfos!.rateSerie}
+        />
+        <TwoTextApp
+          colorFirstText={'#000'}
+          fontSizeFirstText={20}
+          textFirstText="Quantas repetições forçadas/ajudadas teve:"
+          colorSecondText={'#000'}
+          fontSizeSecondText={18}
+          textSecondText={openModalInfos!.helpedReps?.reps}
+        />
+        <TwoTextApp
+          colorFirstText={'#000'}
+          fontSizeFirstText={20}
+          textFirstText="Quantas repetições parciais teve: "
+          colorSecondText={'#000'}
+          fontSizeSecondText={18}
+          textSecondText={openModalInfos!.partials?.reps}
+        />
+        <TwoTextApp
+          colorFirstText={'#000'}
+          fontSizeFirstText={20}
+          textFirstText="Quais equipamentos foram usados:"
+          colorSecondText={'#000'}
+          fontSizeSecondText={18}
+          textSecondText={openModalInfos!.useSomeEquipment.listOfEquipment
+            .map(equipment => equipment)
+            .join(' & ')}
+        />
       </ModalApp>
       </>
   );

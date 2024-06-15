@@ -6,7 +6,6 @@ import MuscleGroupService, {
 import {FlatList} from 'react-native-gesture-handler';
 import {
   ReactNode,
-  SetStateAction,
   useDeferredValue,
   useEffect,
   useMemo,
@@ -17,31 +16,22 @@ import {useQueries} from '@tanstack/react-query';
 import Spinner from 'react-native-loading-spinner-overlay';
 import {ListOfExercises} from './componentes/ListsOfExercises';
 import DropdownApp from '../Dropdown';
-import {IExerciseType} from '../../utils/types/Exercise';
+import { useEdit } from '../../hooks/useEdit';
 
 const renderComponent = (condition: boolean, component: ReactNode) => {
   return condition ? component : null;
 };
 
-interface IProps {
-  exercises: IReturnDataGetMusclesGroups[];
-  handleAddNewExercise(exercise: IExerciseType): void;
-  findTheExerciseOnListAlreadyAdded(exerciseName: string): boolean;
-  findTheExerciseOnListNewExercise(exerciseName: string): boolean;
-  selectedMuscleGroup: IReturnDataGetMusclesGroups | null | undefined;
-  setSelectedMuscleGroup: (
-    value: SetStateAction<IReturnDataGetMusclesGroups | null | undefined>,
-  ) => void;
-}
+export default function AddNewExercise() {
+  const {
+    findTheExerciseOnListAlreadyAdded,
+    findTheExerciseOnListNewExercise,
+    selectedMuscleGroup,
+    setSelectedMuscleGroup,
+    handleAddNewExercise,
+    dataMusclesGroups: exercises
+  } = useEdit();
 
-export default function AddNewExercise({
-  exercises,
-  handleAddNewExercise,
-  findTheExerciseOnListAlreadyAdded,
-  findTheExerciseOnListNewExercise,
-  selectedMuscleGroup,
-  setSelectedMuscleGroup,
-}: IProps) {
   const [searchExercise, setSearchExercise] = useState('');
   const [
     loadingSearchExerciseOfMuscleSelected,
@@ -57,8 +47,7 @@ export default function AddNewExercise({
 
     const normalizedSearch = deferredSearchExercise.toLowerCase().trim();
 
-    return exercises
-      .filter(muscleGroup =>
+    return exercises?.filter(muscleGroup =>
         muscleGroup.exercises?.some(exercise =>
           exercise.name.toLowerCase().includes(normalizedSearch),
         ),
@@ -94,7 +83,7 @@ export default function AddNewExercise({
 
   function handleSelectMuscleGroup(muscleGroup: string) {
     setLoadingSearchExerciseOfMuscleSelected(true);
-    setSelectedMuscleGroup(prevState => {
+    setSelectedMuscleGroup!(prevState => {
       if (prevState?.name === muscleGroup) {
         return prevState;
       }
@@ -112,7 +101,7 @@ export default function AddNewExercise({
       (dataMuscleSelected as IReturnDataGetMusclesGroups)?.name ===
         selectedMuscleGroup?.name
     ) {
-      setSelectedMuscleGroup(dataMuscleSelected as IReturnDataGetMusclesGroups);
+      setSelectedMuscleGroup!(dataMuscleSelected as IReturnDataGetMusclesGroups);
     }
     setLoadingSearchExerciseOfMuscleSelected(false);
   }, [
@@ -125,7 +114,7 @@ export default function AddNewExercise({
   const componentes = {
     default: (
       <ListOfExercises
-        mainList={exercises}
+        mainList={exercises!}
         handleAddNewExercise={handleAddNewExercise}
         findTheExerciseOnListAlreadyAdded={findTheExerciseOnListAlreadyAdded}
         findTheExerciseOnListNewExercise={findTheExerciseOnListNewExercise}
@@ -133,7 +122,7 @@ export default function AddNewExercise({
     ),
     searchExercise: (
       <ListOfExercises
-        mainList={filteredExercises}
+        mainList={filteredExercises!}
         handleAddNewExercise={handleAddNewExercise}
         findTheExerciseOnListAlreadyAdded={findTheExerciseOnListAlreadyAdded}
         findTheExerciseOnListNewExercise={findTheExerciseOnListNewExercise}
